@@ -1,6 +1,6 @@
 @use "sass:map";
 
-#conversation {
+#conversationWrapper {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -16,6 +16,7 @@
     padding: map.get($spacers, 2) map.get($spacers, 3);
     color: $white;
     gap: map.get($spacers, 2);
+    user-select: none;
 
     .profile-card .profile-action {
       color: $gray-500;

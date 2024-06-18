@@ -21,6 +21,7 @@
   .meta {
     color: $text-muted;
     font-size: $small-font-size;
+    user-select: none;
   }
 
   .text {

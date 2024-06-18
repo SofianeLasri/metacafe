@@ -17,6 +17,7 @@
         height: 100vh;
         z-index: 1000;
         transition: left 0.3s ease;
+        user-select: none;
 
         @include media-breakpoint-up(lg) {
             position: relative;

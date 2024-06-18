@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faMagnifyingGlass} from '@fortawesome/free-solid-svg-icons';
-import {App, createApp, createVNode, getCurrentInstance, onMounted, VueElement} from "vue";
+import {App, createApp, onMounted} from "vue";
 import SimpleResult from "~@/components/components/SearchZoneResults/SimpleResult.vue";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const props = defineProps<{
   id: string;
@@ -33,7 +34,7 @@ onMounted(() => {
   document.addEventListener("click", handleClickOutside);
   document.addEventListener("touchstart", handleClickOutside);
 
-  searchInput.addEventListener("keyup", (event) => {
+  searchInput.addEventListener("keyup", () => {
     fetch(props.searchUrl, {
       method: "POST",
       headers: {
