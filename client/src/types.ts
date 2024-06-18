@@ -33,3 +33,8 @@ export type Activity = {
 }
 
 export type Sender = "me" | "friend";
+
+export type CenterOfInterest = {
+    id: number;
+    name: string;
+};

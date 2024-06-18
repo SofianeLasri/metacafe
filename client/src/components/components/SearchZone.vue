@@ -9,6 +9,7 @@ const props = defineProps<{
   id: string;
   placeholder: string;
   searchUrl: string;
+  clearInputOnResultClick: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -89,6 +90,9 @@ onMounted(() => {
       resultVueComponent.mount(tempDiv);
       tempDiv.firstElementChild!.addEventListener("click", (event) => {
         emit("resultClick", event.target as HTMLElement);
+        if (props.clearInputOnResultClick) {
+          searchInput.value = "";
+        }
       });
       searchResults.appendChild(tempDiv.firstElementChild!);
     });

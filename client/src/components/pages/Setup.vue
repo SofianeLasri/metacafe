@@ -1,240 +1,164 @@
 <script setup lang="ts">
-import {App, createApp, onMounted} from "vue";
-import router from "~@/router.ts";
-import SearchZone from "~@/components/components/SearchZone.vue";
-import InteractiveBadge from "~@/components/components/InteractiveBadge.vue";
-import defaultProfilePic from "~@/assets/images/square-logo-with-background.avif?url";
+import {createApp, onMounted, ref} from 'vue';
+import router from '~@/router.ts';
+import SearchZone from '~@/components/components/SearchZone.vue';
+import InteractiveBadge from '~@/components/components/InteractiveBadge.vue';
+import defaultProfilePic from '~@/assets/images/square-logo-with-background.avif?url';
+import {fetchApi, getAuthHeaders, getJsonHeaders} from '~@/helpers.ts';
+import {CenterOfInterest} from "~@/types.ts";
 
-const serverBaseUrl: string = import.meta.env.VITE_BACKEND_URL as string;
-const updateProfileApiUrl: string = `${serverBaseUrl}/api/user/me`;
-const updateProfilePicApiUrl: string = `${updateProfileApiUrl}/updateProfilePic`;
-const userCentersOfInterestApiUrl: string = `${updateProfileApiUrl}/centersOfInterest`;
+const serverBaseUrl = import.meta.env.VITE_BACKEND_URL as string;
+const updateProfileApiUrl = `${serverBaseUrl}/api/user/me`;
+const updateProfilePicApiUrl = `${updateProfileApiUrl}/updateProfilePic`;
+const userCentersOfInterestApiUrl = `${updateProfileApiUrl}/centersOfInterest`;
 const getAttachmentApiUrl = `${serverBaseUrl}/api/attachment/`;
-const getCentersOfInterestApiUrl: string = `${serverBaseUrl}/api/centerOfInterest`;
-const matchCenterOfInterestApiUrl: string = `${getCentersOfInterestApiUrl}/matchByName`;
+const getCentersOfInterestApiUrl = `${serverBaseUrl}/api/centerOfInterest`;
+const matchCenterOfInterestApiUrl = `${getCentersOfInterestApiUrl}/matchByName`;
 
-type centerOfInterest = {
-  id: number;
-  name: string;
-};
+const userProfilePictureUrl = ref<string>(localStorage.getItem('profilePictureUrl') || defaultProfilePic);
+const centersOfInterest = ref<CenterOfInterest[]>([]);
+const centersList = ref<HTMLElement | null>(null);
 
-let userProfilePictureUrl: string = localStorage.getItem("profilePictureUrl")!;
-let centersList: HTMLElement | null = null;
-let centersOfInterest: centerOfInterest[] = [];
+async function handleImageUpload(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
 
-onMounted(() => {
-  const setProfilePicturePopup: HTMLElement = document.getElementById("setProfilePicturePopup")!;
-  const profilePicture: HTMLElement = document.getElementById("profilePicture")!;
-  const denyPpBtn: HTMLButtonElement = document.getElementById("denyPpBtn")! as HTMLButtonElement;
-  const laterPpBtn: HTMLButtonElement = document.getElementById("laterPpBtn")! as HTMLButtonElement;
-  const finishPpBtn: HTMLButtonElement = document.getElementById("finishPpBtn")! as HTMLButtonElement;
-  const setCenterOfInterestsPopup: HTMLElement = document.getElementById("setCenterOfInterestsPopup")!;
-  const nextBtn: HTMLButtonElement = document.getElementById("nextBtn")! as HTMLButtonElement;
-  centersList = document.getElementById("centersList")!;
+  if (file) {
+    const formData = new FormData();
+    formData.append('profilePicture', file);
 
-  getCentersOfInterest();
-
-  profilePicture.addEventListener("click", () => {
-    // Ouvrir la boîte de dialogue pour sélectionner une image
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = handleImageUpload;
-    input.click();
-  });
-
-  const handleImageUpload = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-
-    if (file) {
-      // Créer un objet FormData pour envoyer le fichier
-      const formData = new FormData();
-      formData.append("profilePicture", file);
-
-      // Envoyer la requête au serveur
-      fetch(updateProfilePicApiUrl, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: formData
-      }).then(async (response) => {
-        if (response.ok) {
-          const responseJson = await response.json();
-          const newProfilePictureUrl = getAttachmentApiUrl + responseJson.profilePicture;
-          localStorage.setItem("profilePictureUrl", newProfilePictureUrl);
-          userProfilePictureUrl = newProfilePictureUrl;
-          profilePicture.style.backgroundImage = `url(${userProfilePictureUrl})`;
-
-          showFinishButton(true);
-        } else {
-          // Gérer les erreurs
-          const isResponseJson = response.headers.get("content-type")?.includes("application/json");
-          if (isResponseJson) {
-            const responseJson = await response.json();
-            console.log(responseJson);
-          } else {
-            console.log("Une erreur est survenue");
-          }
-        }
+    try {
+      const responseJson = await fetchApi(updateProfilePicApiUrl, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: formData,
       });
-    }
-  };
 
-  function showFinishButton(confirm: boolean = false) {
-    if(userProfilePictureUrl === defaultProfilePic && !confirm) {
-      return;
+      const newProfilePictureUrl = getAttachmentApiUrl + responseJson.profilePicture;
+      localStorage.setItem('profilePictureUrl', newProfilePictureUrl);
+      userProfilePictureUrl.value = newProfilePictureUrl;
+
+      document.getElementById('profilePicture')!.style.backgroundImage = `url(${userProfilePictureUrl.value})`;
+      showFinishButton(true);
+    } catch (error: any) {
+      console.error(error.message);
     }
-    denyPpBtn.classList.add("d-none");
-    laterPpBtn.classList.add("d-none");
-    finishPpBtn.classList.remove("d-none");
   }
-
-  function finishSetup() {
-    fetch(updateProfileApiUrl, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
-      },
-      body: JSON.stringify({
-        hasSeenIntro: true
-      })
-    }).then(async (response) => {
-      if (response.status === 201) {
-        window.location.href = router.resolve({name: "messages"}).href;
-      } else {
-        const isResponseJson = response.headers.get("content-type")?.includes("application/json");
-        if (isResponseJson) {
-          const responseJson = await response.json();
-          console.log(responseJson);
-        } else {
-          console.log("Une erreur est survenue");
-        }
-      }
-
-    });
-  }
-
-  denyPpBtn.addEventListener("click", () => {
-    finishSetup();
-  });
-
-  laterPpBtn.addEventListener("click", () => {
-    window.location.href = router.resolve({name: "messages"}).href;
-  });
-
-  finishPpBtn.addEventListener("click", () => {
-    finishSetup();
-  });
-
-  nextBtn.addEventListener("click", () => {
-    fetch(userCentersOfInterestApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
-      },
-      body: JSON.stringify({
-        centersOfInterest: centersOfInterest.map((centerOfInterest) => {
-          return centerOfInterest.id;
-        })
-      })
-    }).then(async (response) => {
-      if (response.status === 201) {
-        showProfilePicturePopup();
-      } else {
-        const isResponseJson = response.headers.get("content-type")?.includes("application/json");
-        if (isResponseJson) {
-          const responseJson = await response.json();
-          console.log(responseJson);
-        } else {
-          console.log("Une erreur est survenue");
-        }
-      }
-    })
-  });
-
-  function showProfilePicturePopup() {
-    setCenterOfInterestsPopup.classList.add("d-none");
-    showFinishButton();
-    setProfilePicturePopup.classList.remove("d-none");
-  }
-});
-
-function getCentersOfInterest() {
-  fetch(userCentersOfInterestApiUrl, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem("token")}`
-    }
-  }).then(async (response) => {
-    if (response.ok) {
-      const responseJson = await response.json();
-      centersOfInterest = responseJson;
-      centersOfInterest.forEach((centerOfInterest) => {
-        addCenterOfInterest(centerOfInterest);
-      });
-    } else {
-      // Gérer les erreurs
-      const isResponseJson = response.headers.get("content-type")?.includes("application/json");
-      if (isResponseJson) {
-        const responseJson = await response.json();
-        console.log(responseJson);
-      } else {
-        console.log("Une erreur est survenue");
-      }
-    }
-  });
 }
 
-function addCenterOfInterest(centerOfInterest: HTMLElement|centerOfInterest) {
-  let centerOfInterestId: number;
-  let centerOfInterestName: string;
-
-  if (centerOfInterest instanceof HTMLElement) {
-    centerOfInterestId = parseInt(centerOfInterest.dataset.value!);
-    centerOfInterestName = centerOfInterest.dataset.text!;
-  } else {
-    centerOfInterestId = centerOfInterest.id;
-    centerOfInterestName = centerOfInterest.name;
+function showFinishButton(confirm = false) {
+  if (userProfilePictureUrl.value === defaultProfilePic && !confirm) {
+    return;
   }
+  document.getElementById('denyPpBtn')!.classList.add('d-none');
+  document.getElementById('laterPpBtn')!.classList.add('d-none');
+  document.getElementById('finishPpBtn')!.classList.remove('d-none');
+}
 
-  centersOfInterest.push({id: centerOfInterestId, name: centerOfInterestName});
+async function finishSetup() {
+  try {
+    await fetchApi(updateProfileApiUrl, {
+      method: 'PUT',
+      headers: getJsonHeaders(),
+      body: JSON.stringify({hasSeenIntro: true}),
+    });
+    window.location.href = router.resolve({name: 'messages'}).href;
+  } catch (error: any) {
+    console.error(error.message);
+  }
+}
 
-  let tempDiv = document.createElement("div");
-  let badgeVueComponent: App<Element> = createApp({extends: InteractiveBadge}, {
+async function getCentersOfInterest() {
+  try {
+    centersOfInterest.value = await fetchApi(userCentersOfInterestApiUrl, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    centersOfInterest.value.forEach(addCenterOfInterest);
+  } catch (error: any) {
+    console.error(error.message);
+  }
+}
+
+function addCenterOfInterest(centerOfInterest: HTMLElement | CenterOfInterest) {
+  const centerOfInterestId = centerOfInterest instanceof HTMLElement ? parseInt(centerOfInterest.dataset.value!) : centerOfInterest.id;
+  const centerOfInterestName = centerOfInterest instanceof HTMLElement ? centerOfInterest.dataset.text! : centerOfInterest.name;
+
+  centersOfInterest.value.push({id: centerOfInterestId, name: centerOfInterestName});
+
+  const tempDiv = document.createElement('div');
+  const badgeVueComponent = createApp({extends: InteractiveBadge}, {
     text: centerOfInterestName,
-    id: "centerOfInterest-" + centerOfInterestId
+    id: `centerOfInterest-${centerOfInterestId}`,
   });
 
   badgeVueComponent.mount(tempDiv);
 
-  let closeBtn = tempDiv.firstElementChild!.querySelector(".btn-close")!;
-  closeBtn.addEventListener("click", (event) => {
-    removeCenterOfInterest(centerOfInterestId);
-  });
+  const closeBtn = tempDiv.firstElementChild!.querySelector('.btn-close')!;
+  closeBtn.addEventListener('click', () => removeCenterOfInterest(centerOfInterestId));
 
-  centersList!.appendChild(tempDiv.firstElementChild!);
+  centersList.value!.appendChild(tempDiv.firstElementChild!);
 
-  if (centersOfInterest.length >= 3) {
-    document.getElementById("nextBtn")!.classList.remove("d-none");
+  if (centersOfInterest.value.length >= 3) {
+    document.getElementById('nextBtn')!.classList.remove('d-none');
   }
 }
 
 function removeCenterOfInterest(centerOfInterestId: number) {
-  const centerOfInterestElement = document.getElementById("centerOfInterest-" + centerOfInterestId)!;
+  const centerOfInterestElement = document.getElementById(`centerOfInterest-${centerOfInterestId}`)!;
   centerOfInterestElement.remove();
 
-  centersOfInterest = centersOfInterest.filter((centerOfInterest) => {
-    return centerOfInterest.id !== centerOfInterestId;
-  });
+  centersOfInterest.value = centersOfInterest.value.filter(center => center.id !== centerOfInterestId);
 
-  if (centersOfInterest.length < 3) {
-    document.getElementById("nextBtn")!.classList.add("d-none");
+  if (centersOfInterest.value.length < 3) {
+    document.getElementById('nextBtn')!.classList.add('d-none');
   }
 }
+
+async function handleNext() {
+  try {
+    await fetchApi(userCentersOfInterestApiUrl, {
+      method: 'POST',
+      headers: getJsonHeaders(),
+      body: JSON.stringify({
+        centersOfInterest: centersOfInterest.value.map(center => center.id),
+      }),
+    });
+    showProfilePicturePopup();
+  } catch (error: any) {
+    console.error(error.message);
+  }
+}
+
+function showProfilePicturePopup() {
+  document.getElementById('setCenterOfInterestsPopup')!.classList.add('d-none');
+  showFinishButton();
+  document.getElementById('setProfilePicturePopup')!.classList.remove('d-none');
+}
+
+onMounted(() => {
+  const profilePicture = document.getElementById('profilePicture')!;
+  const denyPpBtn = document.getElementById('denyPpBtn')! as HTMLButtonElement;
+  const laterPpBtn = document.getElementById('laterPpBtn')! as HTMLButtonElement;
+  const finishPpBtn = document.getElementById('finishPpBtn')! as HTMLButtonElement;
+  const nextBtn = document.getElementById('nextBtn')! as HTMLButtonElement;
+  centersList.value = document.getElementById('centersList')!;
+
+  getCentersOfInterest();
+
+  profilePicture.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = handleImageUpload;
+    input.click();
+  });
+
+  denyPpBtn.addEventListener('click', finishSetup);
+  laterPpBtn.addEventListener('click', () => window.location.href = router.resolve({name: 'messages'}).href);
+  finishPpBtn.addEventListener('click', finishSetup);
+  nextBtn.addEventListener('click', handleNext);
+});
 </script>
 
 <template>
@@ -257,8 +181,8 @@ function removeCenterOfInterest(centerOfInterestId: number) {
     <div class="content">
       <h4>Qu'est-ce qui vous passionne ?</h4>
       <div class="mt-3">
-        <SearchZone id="searchBar" :search-url="matchCenterOfInterestApiUrl"
-                    placeholder="Rechercher un centre d'intérêt" @resultClick="addCenterOfInterest" />
+        <SearchZone id="searchBar" :search-url="matchCenterOfInterestApiUrl" :clear-input-on-result-click="true"
+                    placeholder="Rechercher un centre d'intérêt" @resultClick="addCenterOfInterest"/>
         <p class="text-muted small mt-1">Choisissez au moins 3 centres d'intérêt.</p>
       </div>
 
@@ -270,7 +194,3 @@ function removeCenterOfInterest(centerOfInterestId: number) {
     </div>
   </div>
 </template>
-
-<style scoped>
-
-</style>

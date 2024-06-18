@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import SideBar from "~@/components/components/SideBar.vue";
-import {onMounted, ref} from "vue";
-import {UserPublicProfile, Activity} from "~@/types.ts";
-import Conversation from "~@/components/components/Conversation.vue";
+import {onMounted, ref} from 'vue';
+import SideBar from '~@/components/components/SideBar.vue';
+import Conversation from '~@/components/components/Conversation.vue';
+import {UserPublicProfile, Activity} from '~@/types.ts';
+import {fetchApi, getAuthHeaders} from '~@/helpers.ts';
 
-const serverBaseUrl: string = import.meta.env.VITE_BACKEND_URL as string;
-const userApiUrl: string = `${serverBaseUrl}/api/user`;
-const updateProfileApiUrl: string = `${userApiUrl}/me`;
-const friendsApiUrl: string = `${updateProfileApiUrl}/friends`;
-const activitiesApiUrl: string = `${updateProfileApiUrl}/activity`;
+const serverBaseUrl = import.meta.env.VITE_BACKEND_URL as string;
+const userApiUrl = `${serverBaseUrl}/api/user`;
+const updateProfileApiUrl = `${userApiUrl}/me`;
+const friendsApiUrl = `${updateProfileApiUrl}/friends`;
+const activitiesApiUrl = `${updateProfileApiUrl}/activity`;
 
 const allCachedUsers = ref<UserPublicProfile[]>([]);
 const friends = ref<UserPublicProfile[]>([]);
@@ -16,160 +17,68 @@ const activities = ref<Activity[]>([]);
 const isLoading = ref(0);
 
 let currentConversation: UserPublicProfile | null = null;
-let currentConversationKey = ref(0);
+const currentConversationKey = ref(0);
 
 async function getFriends() {
-  await fetch(friendsApiUrl, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem("token")}`
-    },
-  }).then(async (response) => {
-    if (response.status === 200) {
-      friends.value = await response.json();
-      isLoading.value++;
-
-      for (const friend of friends.value) {
-        if (!allCachedUsers.value.some((otherUser) => otherUser.id === friend.id)) {
-          allCachedUsers.value.push(friend);
-        }
-      }
-    } else {
-      const isResponseJson = response.headers.get("content-type")?.includes("application/json");
-      if (isResponseJson) {
-        const responseJson = await response.json();
-        console.error(responseJson.message);
-      } else {
-        console.error("Une erreur est survenue");
-      }
-    }
-  });
+  friends.value = await fetchApi(friendsApiUrl, {method: 'GET', headers: getAuthHeaders()});
+  allCachedUsers.value.push(...friends.value.filter(friend => !allCachedUsers.value.some(user => user.id === friend.id)));
+  isLoading.value++;
 }
 
 async function getActivities() {
-  await fetch(activitiesApiUrl, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem("token")}`
-    },
-  }).then(async (response) => {
-    if (response.status === 200) {
-      activities.value = await response.json();
-      isLoading.value++;
-
-      for (const activity of activities.value) {
-        if (!allCachedUsers.value.some((user) => user.id === activity.targetUserId)) {
-          let targetUser: UserPublicProfile | null = await getUserPublicProfile(activity.targetUserId);
-          if (targetUser) {
-            allCachedUsers.value.push(targetUser);
-          }
-        }
-      }
-    } else {
-      const isResponseJson = response.headers.get("content-type")?.includes("application/json");
-      if (isResponseJson) {
-        const responseJson = await response.json();
-        console.error(responseJson.message);
-      } else {
-        console.error("Une erreur est survenue");
-      }
-    }
-  });
-}
-
-async function getUserPublicProfile(userId: number): Promise<UserPublicProfile | null> {
-  let user: UserPublicProfile | null = null;
-
-  let promise = fetch(userApiUrl + "/" + userId, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem("token")}`
-    },
-  }).then(async (response) => {
-    if (response.status === 200) {
-      user = await response.json();
-    } else {
-      const isResponseJson = response.headers.get("content-type")?.includes("application/json");
-      if (isResponseJson) {
-        const responseJson = await response.json();
-        console.error(responseJson.message);
-      } else {
-        console.error("Une erreur est survenue");
-      }
-    }
-  });
-
-  await promise;
-  return user;
-}
-
-onMounted(() => {
-  getFriends().then(() => {
-    getActivities().then(() => {
-      initConversation();
-    });
-  });
-
-  function initConversation() {
-    // On regarde si on a un paramètre userId dans l'URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get("userId");
-
-    if (userId) {
-      if (friends.value.length > 0) {
-        // On cherche l'utilisateur dans la liste des amis
-        const friend = friends.value.find((friend) => friend.id === parseInt(userId!));
-
-        if (friend) {
-          // Si on a trouvé l'utilisateur, on affiche la conversation
-          loadConversation(friend);
-        } else {
-          fetch(userApiUrl + "/" + userId, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-          }).then(async (response) => {
-            if (response.status === 200) {
-              const user: UserPublicProfile = await response.json();
-              loadConversation(user);
-            } else {
-              const isResponseJson = response.headers.get("content-type")?.includes("application/json");
-              if (isResponseJson) {
-                const responseJson = await response.json();
-                console.error(responseJson.message);
-              } else {
-                console.error("Une erreur est survenue");
-              }
-            }
-          });
-        }
-      }
+  activities.value = await fetchApi(activitiesApiUrl, {method: 'GET', headers: getAuthHeaders()});
+  for (const activity of activities.value) {
+    if (!allCachedUsers.value.some(user => user.id === activity.targetUserId)) {
+      const targetUser = await fetchApi(`${userApiUrl}/${activity.targetUserId}`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
+      allCachedUsers.value.push(targetUser);
     }
   }
+  isLoading.value++;
+}
+
+function getCachedUserPublicProfile(userId: number): UserPublicProfile | null {
+  return allCachedUsers.value.find(user => user.id === userId) || null;
+}
+
+onMounted(async () => {
+  await Promise.all([getFriends(), getActivities()]);
+  initConversation();
 });
 
-function loadConversation(user: UserPublicProfile): void {
-  currentConversation = user;
-  currentConversationKey.value++;
-
-  const url = new URL(window.location.href);
-  url.searchParams.set("userId", user.id.toString());
-  window.history.pushState({}, "", url.toString());
-
-  const sidebar: HTMLElement = document.getElementById("sidebar")!;
-  if(currentConversation) {
-    sidebar.classList.remove("mobile-fullwidth");
-  } else {
-    sidebar.classList.add("mobile-fullwidth");
+function initConversation() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const userId = urlParams.get('userId');
+  if (userId) {
+    const friend = friends.value.find(friend => friend.id === parseInt(userId));
+    if (friend) {
+      loadConversation(friend);
+    } else {
+      fetchApi(`${userApiUrl}/${userId}`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+      }).then(user => loadConversation(user));
+    }
   }
 }
 
-function openSidebar(): void {
-  const sidebar: HTMLElement = document.getElementById("sidebar")!;
-  sidebar.style.left = "0";
+function loadConversation(user: UserPublicProfile) {
+  currentConversation = user;
+  currentConversationKey.value++;
+  const url = new URL(window.location.href);
+  url.searchParams.set('userId', user.id.toString());
+  window.history.pushState({}, '', url.toString());
+
+  const sidebar = document.getElementById('sidebar')!;
+  sidebar.classList.toggle('mobile-fullwidth', !currentConversation);
 }
 
+function openSidebar() {
+  const sidebar = document.getElementById('sidebar')!;
+  sidebar.style.left = '0';
+}
 </script>
 
 <template>
