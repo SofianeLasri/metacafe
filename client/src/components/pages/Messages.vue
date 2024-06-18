@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SideBar from "~@/components/components/SideBar.vue";
 import {onMounted, ref} from "vue";
-import {userPublicProfile, emojiDataByGroup, Activity} from "~@/types.ts";
+import {UserPublicProfile, EmojiDataByGroup, Activity} from "~@/types.ts";
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {faSmile, faImage} from '@fortawesome/free-regular-svg-icons'
 import {faMicrophone, faBars} from "@fortawesome/free-solid-svg-icons";
@@ -18,16 +18,16 @@ const updateProfileApiUrl: string = `${userApiUrl}/me`;
 const friendsApiUrl: string = `${updateProfileApiUrl}/friends`;
 const activitiesApiUrl: string = `${updateProfileApiUrl}/activity`;
 
-const allCachedUsers = ref<userPublicProfile[]>([]);
-const friends = ref<userPublicProfile[]>([]);
+const allCachedUsers = ref<UserPublicProfile[]>([]);
+const friends = ref<UserPublicProfile[]>([]);
 const activities = ref<Activity[]>([]);
 const isLoading = ref(0);
 
-const emojiDataByGroup: emojiDataByGroup = JSON.parse(JSON.stringify(emojiByGroup));
+const emojiDataByGroup: EmojiDataByGroup = JSON.parse(JSON.stringify(emojiByGroup));
 
 let conversation: HTMLElement | null = null;
 let noConversation: HTMLElement | null = null;
-let currentConversation: userPublicProfile | null = null;
+let currentConversation: UserPublicProfile | null = null;
 
 function getFriends() {
   fetch(friendsApiUrl, {
@@ -70,7 +70,7 @@ function getActivities() {
 
       for (const activity of activities.value) {
         if (!allCachedUsers.value.some((user) => user.id === activity.targetUserId)) {
-          let targetUser: userPublicProfile | null = await getUserPublicProfile(activity.targetUserId);
+          let targetUser: UserPublicProfile | null = await getUserPublicProfile(activity.targetUserId);
           if (targetUser) {
             allCachedUsers.value.push(targetUser);
           }
@@ -88,8 +88,8 @@ function getActivities() {
   });
 }
 
-async function getUserPublicProfile(userId: number): Promise<userPublicProfile | null> {
-  let user: userPublicProfile | null = null;
+async function getUserPublicProfile(userId: number): Promise<UserPublicProfile | null> {
+  let user: UserPublicProfile | null = null;
 
   let promise = fetch(userApiUrl + "/" + userId, {
     method: "GET",
@@ -114,8 +114,8 @@ async function getUserPublicProfile(userId: number): Promise<userPublicProfile |
   return user;
 }
 
-function getCachedUserPublicProfile(userId: number): userPublicProfile | null {
-  let user: userPublicProfile | null = null;
+function getCachedUserPublicProfile(userId: number): UserPublicProfile | null {
+  let user: UserPublicProfile | null = null;
 
   if (allCachedUsers.value.length > 0) {
     user = allCachedUsers.value.find((otherUser) => otherUser.id === userId)!;
@@ -169,7 +169,7 @@ onMounted(() => {
             },
           }).then(async (response) => {
             if (response.status === 200) {
-              const user: userPublicProfile = await response.json();
+              const user: UserPublicProfile = await response.json();
               loadConversation(user);
             } else {
               const isResponseJson = response.headers.get("content-type")?.includes("application/json");
@@ -187,7 +187,7 @@ onMounted(() => {
   }
 });
 
-function createEmojiGroupsDomElements(emojiData: emojiDataByGroup, emojiListContainer: HTMLElement, messageInput: HTMLInputElement) {
+function createEmojiGroupsDomElements(emojiData: EmojiDataByGroup, emojiListContainer: HTMLElement, messageInput: HTMLInputElement) {
   for (const group in emojiData) {
     const groupDomElement = document.createElement("div");
     groupDomElement.classList.add("group");
@@ -219,7 +219,7 @@ function createEmojiGroupsDomElements(emojiData: emojiDataByGroup, emojiListCont
   }
 }
 
-function loadConversation(user: userPublicProfile) {
+function loadConversation(user: UserPublicProfile) {
   currentConversation = user;
   if (conversation && noConversation) {
     conversation.classList.remove("d-none");

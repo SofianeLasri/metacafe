@@ -1,4 +1,4 @@
-export type emojiDataByGroup = {
+export type EmojiDataByGroup = {
     [key: string]: {
         "emoji": string;
         "skin_tone_support": boolean;
@@ -9,7 +9,7 @@ export type emojiDataByGroup = {
     }
 }
 
-export type userPublicProfile = {
+export type UserPublicProfile = {
     id: number;
     name: string;
     profilePicture?: number | null;
@@ -22,13 +22,13 @@ export type Attachment = {
     url: string;
 }
 
-export type activityType = "friendRequest" | "sendMessage";
+export type ActivityType = "friendRequest" | "sendMessage";
 
 export type Activity = {
     id: number;
     userId: number;
     targetUserId: number;
-    type: activityType;
+    type: ActivityType;
     isNew: boolean;
 }
 

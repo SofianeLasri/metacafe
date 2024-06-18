@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {userPublicProfile} from "~@/types.ts";
+import {UserPublicProfile} from "~@/types.ts";
 import {onMounted} from "vue";
 
 const props = defineProps<{
@@ -15,7 +15,7 @@ const props = defineProps<{
 const elementId: string = props.elementId ? props.elementId+props.id : `profileCard${props.id}`;
 
 const emit = defineEmits<{
-  (e: 'profileClicked', user: userPublicProfile): void
+  (e: 'profileClicked', user: UserPublicProfile): void
 }>()
 
 onMounted(() => {
