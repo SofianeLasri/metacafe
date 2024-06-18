@@ -19,6 +19,12 @@
         transition: left 0.3s ease;
         user-select: none;
 
+        &.mobile-fullwidth {
+            @include media-breakpoint-down(lg) {
+                width: 100%;
+            }
+        }
+
         @include media-breakpoint-up(lg) {
             position: relative;
             flex-shrink: 0;

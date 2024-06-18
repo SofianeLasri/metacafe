@@ -147,10 +147,16 @@ onMounted(() => {
   }
 });
 
-function loadConversation(user: UserPublicProfile) {
-  console.log("Loading conversation with user: ", user);
+function loadConversation(user: UserPublicProfile): void {
   currentConversation = user;
   currentConversationKey.value++;
+
+  const sidebar: HTMLElement = document.getElementById("sidebar")!;
+  if(currentConversation) {
+    sidebar.classList.remove("mobile-fullwidth");
+  } else {
+    sidebar.classList.add("mobile-fullwidth");
+  }
 }
 
 function openSidebar(): void {

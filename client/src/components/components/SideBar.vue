@@ -45,6 +45,11 @@ onMounted(() => {
     });
 
     sidebar.addEventListener("touchmove", (e) => {
+      // We want be sure that the 'mobile-fullwidth' class isn't applied to the sidebar
+      if(sidebar.classList.contains("mobile-fullwidth")) {
+        return;
+      }
+
       const touchCurrentX = e.touches[0].clientX;
       const deltaX = touchCurrentX - touchStartX;
       const newLeft = sidebarLeft + deltaX;
@@ -85,7 +90,7 @@ function profileClicked(user: UserPublicProfile) {
 </script>
 
 <template>
-  <div id="sidebar" class="sidebar">
+  <div id="sidebar" class="sidebar mobile-fullwidth">
     <div class="header">
       <div class="profile-card-header">
         <div class="background"></div>

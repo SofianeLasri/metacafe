@@ -22,30 +22,24 @@ const emit = defineEmits<{
 
 
 onMounted(() => {
-  console.log("Conversation component mounted")
-  const openSidebarBtn: HTMLElement = document.getElementById("openSidebarBtn")!;
-  const conversationWrapper: HTMLElement = document.getElementById("conversationWrapper")!;
-  const noConversationWrapper: HTMLElement = document.getElementById("noConversationWrapper")!;
-
   if(props.conversation) {
-    conversationWrapper.classList.remove("d-none");
-    noConversationWrapper.classList.add("d-none");
-  } else {
-    conversationWrapper.classList.add("d-none");
-    noConversationWrapper.classList.remove("d-none");
+    handleConversationLogic();
   }
+});
 
+function handleConversationLogic() {
+  const openSidebarBtn: HTMLElement = document.getElementById("openSidebarBtn")!;
   const emojiPicker: HTMLElement = document.getElementById("emojiPicker")!;
   const pickEmojiBtn: HTMLElement = document.getElementById("pickEmojiBtn")!;
-
-  pickEmojiBtn.addEventListener("click", () => {
-    emojiPicker.classList.toggle("active");
-  });
 
   openSidebarBtn.addEventListener("click", () => {
     emit("askedForOpeningSidebar");
   });
-});
+  
+  pickEmojiBtn.addEventListener("click", () => {
+    emojiPicker.classList.toggle("active");
+  });
+}
 
 function insertEmoji(emoji: string): void {
   const messageInput: HTMLInputElement = document.getElementById("messageInput")! as HTMLInputElement;
@@ -55,7 +49,7 @@ function insertEmoji(emoji: string): void {
 </script>
 
 <template>
-  <div id="conversationWrapper" class="d-none">
+  <div id="conversationWrapper" v-if="props.conversation">
     <div class="conversation-header">
       <button type="button" id="openSidebarBtn">
         <font-awesome-icon :icon="['fas', 'bars']"/>
@@ -91,7 +85,7 @@ function insertEmoji(emoji: string): void {
     </div>
   </div>
 
-  <div id="noConversationWrapper"
+  <div id="noConversationWrapper" v-else
        class="no-conversation flex-grow-1 d-flex flex-column align-items-center justify-content-center text-white">
     <div class="content d-flex flex-column align-items-center justify-content-center text-center">
       <img src="../../assets/images/logo.svg" alt="Métacafé logo" class="mb-2" style="width: 5rem; height: 5rem;"/>

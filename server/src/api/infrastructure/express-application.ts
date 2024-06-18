@@ -66,12 +66,12 @@ export class ExpressApplication {
         return corsAllowedOrigins.split(',');
     }
 
-    public static getSessionDuration(): number {
+    public static getSessionDuration(): string {
         const sessionDuration = process.env.SESSION_DURATION;
         if (!sessionDuration) {
             throw new Error('No session duration was found in env file.');
         }
 
-        return Number(sessionDuration);
+        return sessionDuration;
     }
 }

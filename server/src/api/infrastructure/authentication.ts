@@ -26,7 +26,7 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 
 export const generateAuthToken = (user: User) => {
     const secretKey: string = ExpressApplication.getSessionSecret();
-    const sessionDuration: number = ExpressApplication.getSessionDuration();
+    const sessionDuration: string = ExpressApplication.getSessionDuration();
 
     return jwt.sign({id: user.id, email: user.email, name: user.name}, secretKey, {
         expiresIn: sessionDuration,
