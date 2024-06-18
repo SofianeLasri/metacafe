@@ -2,8 +2,7 @@ import {Request, Response} from 'express';
 import * as service from "../../services/userService";
 import {CreateUserDTO, FilterUsersDTO, UpdateUserDTO} from "../../dataTransferObjects/user.dto";
 import * as mapper from './mapper';
-import * as centerOfInterestMapper from '../centerOfInterest/mapper';
-import {CenterOfInterest, User} from "../../interfaces";
+import {CenterOfInterest, Message, User} from "../../interfaces";
 import {UserOutput, userPublicProfile} from "../../../db/models/User";
 import {Activity} from "../../../db/models";
 
@@ -194,4 +193,12 @@ export const deleteById = async (id: number): Promise<boolean> => {
 
 export const getAll = async (filters: FilterUsersDTO): Promise<User[]> => {
     return (await service.getAll(filters)).map(mapper.toUser);
+}
+
+export const sendMessage = async (senderId: number, targetUserId: number, message: string): Promise<void> => {
+    return await service.sendMessage(senderId, targetUserId, message);
+}
+
+export const getMessages = async (userId: number, targetUserId: number): Promise<Message[]> => {
+    return await service.getMessages(userId, targetUserId);
 }

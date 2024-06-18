@@ -5,7 +5,6 @@ import {CreateUserDTO, FilterUsersDTO, UpdateUserDTO} from "../dataTransferObjec
 import {CenterOfInterest, User} from "../interfaces";
 import {isAuthenticated, jsonParser} from "../infrastructure/authentication";
 import multer from "multer";
-import {getPublicProfileById} from "../controllers/user";
 
 const router: Router = Router();
 const upload: multer.Multer = multer({dest: 'uploads'})
@@ -122,6 +121,28 @@ router.put('/me/friends/accept', isAuthenticated, userController.acceptFriendReq
 router.put('/me/friends/reject', isAuthenticated, userController.rejectFriendRequest);
 
 router.get('/me/activity', isAuthenticated, userController.getActivities);
+
+router.put('/me/sendMessage/:targetUserId', isAuthenticated, jsonParser, async (req: Request, res: Response) => {
+    let user: User = req.user as User;
+    user = await userController.getById(user.id);
+
+    const targetUserId: number = Number(req.params.targetUserId);
+    const message: string = req.body.message;
+
+    await userController.sendMessage(user.id, targetUserId, message);
+
+    return res.status(200).send();
+});
+
+router.get('/me/messages/:targetUserId', isAuthenticated, async (req: Request, res: Response) => {
+    let user: User = req.user as User;
+    user = await userController.getById(user.id);
+
+    const targetUserId: number = Number(req.params.targetUserId);
+    const messages: any = await userController.getMessages(user.id, targetUserId);
+
+    return res.status(200).send(messages);
+});
 
 router.get('/:id', isAuthenticated, userController.getPublicProfileById);
 router.get('/email/:email', isAuthenticated, async (req: Request, res: Response) => {

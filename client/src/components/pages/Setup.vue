@@ -6,17 +6,12 @@ import InteractiveBadge from '~@/components/components/InteractiveBadge.vue';
 import defaultProfilePic from '~@/assets/images/square-logo-with-background.avif?url';
 import {fetchApi, getAuthHeaders, getJsonHeaders} from '~@/helpers.ts';
 import {CenterOfInterest} from "~@/types.ts";
+import apiConfig from '~@/config/apiConfig.ts';
 
-const serverBaseUrl = import.meta.env.VITE_BACKEND_URL as string;
-const updateProfileApiUrl = `${serverBaseUrl}/api/user/me`;
-const updateProfilePicApiUrl = `${updateProfileApiUrl}/updateProfilePic`;
-const userCentersOfInterestApiUrl = `${updateProfileApiUrl}/centersOfInterest`;
-const getAttachmentApiUrl = `${serverBaseUrl}/api/attachment/`;
-const getCentersOfInterestApiUrl = `${serverBaseUrl}/api/centerOfInterest`;
-const matchCenterOfInterestApiUrl = `${getCentersOfInterestApiUrl}/matchByName`;
+const {user: {me, updateProfilePic, centersOfInterest}, attachment, centerOfInterest: {matchByName}} = apiConfig;
 
 const userProfilePictureUrl = ref<string>(localStorage.getItem('profilePictureUrl') || defaultProfilePic);
-const centersOfInterest = ref<CenterOfInterest[]>([]);
+const centersOfInterestList = ref<CenterOfInterest[]>([]);
 const centersList = ref<HTMLElement | null>(null);
 
 async function handleImageUpload(event: Event) {
@@ -28,13 +23,13 @@ async function handleImageUpload(event: Event) {
     formData.append('profilePicture', file);
 
     try {
-      const responseJson = await fetchApi(updateProfilePicApiUrl, {
+      const responseJson = await fetchApi(updateProfilePic, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: formData,
       });
 
-      const newProfilePictureUrl = getAttachmentApiUrl + responseJson.profilePicture;
+      const newProfilePictureUrl = attachment + responseJson.profilePicture;
       localStorage.setItem('profilePictureUrl', newProfilePictureUrl);
       userProfilePictureUrl.value = newProfilePictureUrl;
 
@@ -57,7 +52,7 @@ function showFinishButton(confirm = false) {
 
 async function finishSetup() {
   try {
-    await fetchApi(updateProfileApiUrl, {
+    await fetchApi(me, {
       method: 'PUT',
       headers: getJsonHeaders(),
       body: JSON.stringify({hasSeenIntro: true}),
@@ -70,11 +65,11 @@ async function finishSetup() {
 
 async function getCentersOfInterest() {
   try {
-    centersOfInterest.value = await fetchApi(userCentersOfInterestApiUrl, {
+    centersOfInterestList.value = await fetchApi(centersOfInterest, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
-    centersOfInterest.value.forEach(addCenterOfInterest);
+    centersOfInterestList.value.forEach(addCenterOfInterest);
   } catch (error: any) {
     console.error(error.message);
   }
@@ -84,7 +79,7 @@ function addCenterOfInterest(centerOfInterest: HTMLElement | CenterOfInterest) {
   const centerOfInterestId = centerOfInterest instanceof HTMLElement ? parseInt(centerOfInterest.dataset.value!) : centerOfInterest.id;
   const centerOfInterestName = centerOfInterest instanceof HTMLElement ? centerOfInterest.dataset.text! : centerOfInterest.name;
 
-  centersOfInterest.value.push({id: centerOfInterestId, name: centerOfInterestName});
+  centersOfInterestList.value.push({id: centerOfInterestId, name: centerOfInterestName});
 
   const tempDiv = document.createElement('div');
   const badgeVueComponent = createApp({extends: InteractiveBadge}, {
@@ -99,7 +94,7 @@ function addCenterOfInterest(centerOfInterest: HTMLElement | CenterOfInterest) {
 
   centersList.value!.appendChild(tempDiv.firstElementChild!);
 
-  if (centersOfInterest.value.length >= 3) {
+  if (centersOfInterestList.value.length >= 3) {
     document.getElementById('nextBtn')!.classList.remove('d-none');
   }
 }
@@ -108,20 +103,20 @@ function removeCenterOfInterest(centerOfInterestId: number) {
   const centerOfInterestElement = document.getElementById(`centerOfInterest-${centerOfInterestId}`)!;
   centerOfInterestElement.remove();
 
-  centersOfInterest.value = centersOfInterest.value.filter(center => center.id !== centerOfInterestId);
+  centersOfInterestList.value = centersOfInterestList.value.filter(center => center.id !== centerOfInterestId);
 
-  if (centersOfInterest.value.length < 3) {
+  if (centersOfInterestList.value.length < 3) {
     document.getElementById('nextBtn')!.classList.add('d-none');
   }
 }
 
 async function handleNext() {
   try {
-    await fetchApi(userCentersOfInterestApiUrl, {
+    await fetchApi(centersOfInterest, {
       method: 'POST',
       headers: getJsonHeaders(),
       body: JSON.stringify({
-        centersOfInterest: centersOfInterest.value.map(center => center.id),
+        centersOfInterest: centersOfInterestList.value.map(center => center.id),
       }),
     });
     showProfilePicturePopup();
@@ -181,7 +176,7 @@ onMounted(() => {
     <div class="content">
       <h4>Qu'est-ce qui vous passionne ?</h4>
       <div class="mt-3">
-        <SearchZone id="searchBar" :search-url="matchCenterOfInterestApiUrl" :clear-input-on-result-click="true"
+        <SearchZone id="searchBar" :search-url="matchByName" :clear-input-on-result-click="true"
                     placeholder="Rechercher un centre d'intérêt" @resultClick="addCenterOfInterest"/>
         <p class="text-muted small mt-1">Choisissez au moins 3 centres d'intérêt.</p>
       </div>

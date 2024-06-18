@@ -12,17 +12,20 @@ import {faMicrophone, faBars, faPaperPlane} from "@fortawesome/free-solid-svg-ic
 library.add(faSmile, faImage, faMicrophone, faBars, faPaperPlane);
 
 const props = defineProps<{
-  conversation: UserPublicProfile | null;
+  targetUser: UserPublicProfile | null;
 }>()
 
 const emit = defineEmits<{
   (e: 'askedForOpeningSidebar'): void
 }>()
 
+const serverBaseUrl = import.meta.env.VITE_BACKEND_URL as string;
+const getAttachmentApiUrl = `${serverBaseUrl}/api/attachment/`;
 
+const targetUserProfilePictureUrl = props.targetUser?.profilePicture ? getAttachmentApiUrl + props.targetUser.profilePicture : profilePic;
 
 onMounted(() => {
-  if(props.conversation) {
+  if(props.targetUser) {
     handleConversationLogic();
   }
 });
@@ -49,16 +52,16 @@ function insertEmoji(emoji: string): void {
 </script>
 
 <template>
-  <div id="conversationWrapper" v-if="props.conversation">
+  <div id="conversationWrapper" v-if="props.targetUser">
     <div class="conversation-header">
       <button type="button" id="openSidebarBtn">
         <font-awesome-icon :icon="['fas', 'bars']"/>
       </button>
       <ProfileCard
-          :id="1"
-          :username="`Métacafé`"
-          :avatar="profilePic"
-          :status="`En ligne`"
+          :id="props.targetUser.id"
+          :username="props.targetUser.name"
+          :avatar="targetUserProfilePictureUrl"
+          :status="props.targetUser.status"
       />
     </div>
     <div class="conversation-body">

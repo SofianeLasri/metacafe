@@ -289,7 +289,23 @@ export const sendMessage = async (userId: number, targetUserId: number, text: st
         console.error(error);
         throw new Error('Failed to send message');
     }
+}
 
+export const getMessages = async (userId: number, targetUserId: number): Promise<Message[]> => {
+    try {
+        return await Message.findAll({
+            where: {
+                [Op.or]: [
+                    {senderUserId: userId, receiverUserId: targetUserId},
+                    {senderUserId: targetUserId, receiverUserId: userId},
+                ],
+            },
+            order: [['createdAt', 'ASC']],
+        });
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to get messages');
+    }
 }
 
 export const getById = async (id: number): Promise<UserOutput> => {

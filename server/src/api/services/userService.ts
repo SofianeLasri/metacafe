@@ -1,7 +1,7 @@
 import * as userDal from "../../db/dataAccessLayer/user";
 import {UserInput, UserOutput} from "../../db/models/User";
 import {GetAllUsersFilters} from "../../db/dataAccessLayer/types";
-import {CenterOfInterest} from "../interfaces";
+import {CenterOfInterest, Message} from "../interfaces";
 import {Activity} from "../../db/models";
 import {friendRelationType} from "../../db/models/Friend";
 
@@ -34,9 +34,7 @@ export const setCenterOfInterests = (userId: number, centerOfInterestIds: number
 
 export const getFriends = async (userId: number): Promise<UserOutput[]> => {
     try {
-        // Utilisez la DAL pour obtenir la liste des amis
-        const friends = await userDal.getFriends(userId);
-        return friends;
+        return await userDal.getFriends(userId);
     } catch (error) {
         console.error(error);
         throw new Error('Failed to get user friends');
@@ -45,8 +43,7 @@ export const getFriends = async (userId: number): Promise<UserOutput[]> => {
 
 export const areFriends = async (userId: number, friendUserId: number): Promise<boolean> => {
     try {
-        const areFriends = await userDal.areFriends(userId, friendUserId);
-        return areFriends;
+        return await userDal.areFriends(userId, friendUserId);
     } catch (error) {
         console.error(error);
         throw new Error('Failed to check if users are friends');
@@ -133,6 +130,15 @@ export const getByEmail = (email: string): Promise<UserOutput> => {
 export const deleteById = (id: number): Promise<boolean> => {
     return userDal.deleteById(id)
 }
+
 export const getAll = (filters: GetAllUsersFilters): Promise<UserOutput[]> => {
     return userDal.getAll(filters)
+}
+
+export const sendMessage = (senderId: number, receiverId: number, content: string): Promise<void> => {
+    return userDal.sendMessage(senderId, receiverId, content);
+}
+
+export const getMessages = (userId: number, targetUserId: number): Promise<Message[]> => {
+    return userDal.getMessages(userId, targetUserId);
 }

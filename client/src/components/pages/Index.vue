@@ -5,12 +5,9 @@ import RegisterForm from '~@/components/components/RegisterForm.vue';
 import LoginForm from '~@/components/components/LoginForm.vue';
 import defaultProfilePic from '~@/assets/images/square-logo-with-background.avif?url';
 import {fetchApi, getJsonHeaders} from '~@/helpers.ts';
+import apiConfig from '~@/config/apiConfig.ts';
 
-const serverBaseUrl = import.meta.env.VITE_BACKEND_URL as string;
-const loginApiUrl = `${serverBaseUrl}/api/auth/login`;
-const registerApiUrl = `${serverBaseUrl}/api/auth/register`;
-const getUserInfosApiUrl = `${serverBaseUrl}/api/user/me`;
-const getAttachmentApiUrl = `${serverBaseUrl}/api/attachment/`;
+const {auth: {login, register}, user: {me}, attachment} = apiConfig;
 
 async function handleLoginSubmit(e: SubmitEvent, loginEmailInput: HTMLInputElement, loginPasswordInput: HTMLInputElement, loginError: HTMLElement) {
   e.preventDefault();
@@ -21,7 +18,7 @@ async function handleLoginSubmit(e: SubmitEvent, loginEmailInput: HTMLInputEleme
   };
 
   try {
-    const responseJson = await fetchApi(loginApiUrl, {
+    const responseJson = await fetchApi(login, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(data),
@@ -51,7 +48,7 @@ async function handleRegistrationSubmit(e: SubmitEvent, registerEmailInput: HTML
   };
 
   try {
-    await fetchApi(registerApiUrl, {
+    await fetchApi(register, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(data),
@@ -68,7 +65,7 @@ async function handleRegistrationSubmit(e: SubmitEvent, registerEmailInput: HTML
 
 async function handlePostLogin() {
   try {
-    const responseJson = await fetchApi(getUserInfosApiUrl, {
+    const responseJson = await fetchApi(me, {
       method: 'GET',
       headers: getJsonHeaders(),
     });
@@ -76,7 +73,7 @@ async function handlePostLogin() {
     localStorage.setItem('userId', responseJson.id);
     localStorage.setItem('username', responseJson.name);
     localStorage.setItem('email', responseJson.email);
-    localStorage.setItem('profilePictureUrl', responseJson.profilePicture ? `${getAttachmentApiUrl}${responseJson.profilePicture}` : defaultProfilePic);
+    localStorage.setItem('profilePictureUrl', responseJson.profilePicture ? `${attachment}${responseJson.profilePicture}` : defaultProfilePic);
 
     const routeName = responseJson.hasSeenIntro ? 'messages' : 'setup';
     window.location.href = router.resolve({name: routeName}).href;
