@@ -18,8 +18,8 @@ const isLoading = ref(0);
 let currentConversation: UserPublicProfile | null = null;
 let currentConversationKey = ref(0);
 
-function getFriends() {
-  fetch(friendsApiUrl, {
+async function getFriends() {
+  await fetch(friendsApiUrl, {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -46,8 +46,8 @@ function getFriends() {
   });
 }
 
-function getActivities() {
-  fetch(activitiesApiUrl, {
+async function getActivities() {
+  await fetch(activitiesApiUrl, {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -104,9 +104,11 @@ async function getUserPublicProfile(userId: number): Promise<UserPublicProfile |
 }
 
 onMounted(() => {
-  getFriends();
-  getActivities();
-  initConversation();
+  getFriends().then(() => {
+    getActivities().then(() => {
+      initConversation();
+    });
+  });
 
   function initConversation() {
     // On regarde si on a un paramètre userId dans l'URL
@@ -150,6 +152,10 @@ onMounted(() => {
 function loadConversation(user: UserPublicProfile): void {
   currentConversation = user;
   currentConversationKey.value++;
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("userId", user.id.toString());
+  window.history.pushState({}, "", url.toString());
 
   const sidebar: HTMLElement = document.getElementById("sidebar")!;
   if(currentConversation) {

@@ -45,7 +45,6 @@ onMounted(() => {
     });
 
     sidebar.addEventListener("touchmove", (e) => {
-      // We want be sure that the 'mobile-fullwidth' class isn't applied to the sidebar
       if(sidebar.classList.contains("mobile-fullwidth")) {
         return;
       }
@@ -54,7 +53,7 @@ onMounted(() => {
       const deltaX = touchCurrentX - touchStartX;
       const newLeft = sidebarLeft + deltaX;
 
-      if (newLeft <= 0) {  // You can adjust this threshold as needed
+      if (newLeft <= 0) {
         sidebar.style.left = `${newLeft}px`;
       } else {
         sidebar.style.left = "0";
