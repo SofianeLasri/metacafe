@@ -11,6 +11,8 @@ const apiConfig = {
         me: `${serverBaseUrl}/api/user/me`,
         updateProfilePic: `${serverBaseUrl}/api/user/me/updateProfilePic`,
         centersOfInterest: `${serverBaseUrl}/api/user/me/centersOfInterest`,
+        sendMessage: `${serverBaseUrl}/api/user/me/sendMessage/`,
+        getMessages: `${serverBaseUrl}/api/user/me/messages/`,
     },
     attachment: `${serverBaseUrl}/api/attachment/`,
     centerOfInterest: {

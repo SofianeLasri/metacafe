@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import ProfileCard from "~@/components/components/ProfileCard.vue";
-import Message from "~@/components/components/Message.vue";
 import profilePic from "~@/assets/images/square-logo-with-background.avif?url";
-import {UserPublicProfile} from "~@/types.ts";
-import {onMounted} from "vue";
+import {Message, UserPublicProfile} from "~@/types.ts";
+import {onMounted, ref} from "vue";
 import EmojiPicker from "~@/components/components/EmojiPicker.vue";
 import {library} from '@fortawesome/fontawesome-svg-core'
-import {faSmile, faImage} from '@fortawesome/free-regular-svg-icons'
-import {faMicrophone, faBars, faPaperPlane} from "@fortawesome/free-solid-svg-icons";
+import {faImage, faSmile} from '@fortawesome/free-regular-svg-icons'
+import {faBars, faMicrophone, faPaperPlane} from "@fortawesome/free-solid-svg-icons";
+import ConversationBody from "~@/components/components/ConversationBody.vue";
+import {fetchApi, getJsonHeaders} from "~@/helpers.ts";
+import apiConfig from '~@/config/apiConfig.ts';
+
+const {user: {getMessages}} = apiConfig;
 
 library.add(faSmile, faImage, faMicrophone, faBars, faPaperPlane);
 
@@ -23,10 +27,13 @@ const serverBaseUrl = import.meta.env.VITE_BACKEND_URL as string;
 const getAttachmentApiUrl = `${serverBaseUrl}/api/attachment/`;
 
 const targetUserProfilePictureUrl = props.targetUser?.profilePicture ? getAttachmentApiUrl + props.targetUser.profilePicture : profilePic;
+const messages = ref<Message[]>([]);
+const messageKey = ref(0);
 
 onMounted(() => {
-  if(props.targetUser) {
+  if (props.targetUser) {
     handleConversationLogic();
+    fetchMessages();
   }
 });
 
@@ -38,7 +45,7 @@ function handleConversationLogic() {
   openSidebarBtn.addEventListener("click", () => {
     emit("askedForOpeningSidebar");
   });
-  
+
   pickEmojiBtn.addEventListener("click", () => {
     emojiPicker.classList.toggle("active");
   });
@@ -47,6 +54,16 @@ function handleConversationLogic() {
 function insertEmoji(emoji: string): void {
   const messageInput: HTMLInputElement = document.getElementById("messageInput")! as HTMLInputElement;
   messageInput.value += emoji;
+}
+
+function fetchMessages(): void {
+  fetchApi(getMessages + props.targetUser!.id, {
+    method: 'GET',
+    headers: getJsonHeaders(),
+  }).then(response => {
+    messages.value = response;
+    messageKey.value = response.length;
+  });
 }
 
 </script>
@@ -64,10 +81,7 @@ function insertEmoji(emoji: string): void {
           :status="props.targetUser.status"
       />
     </div>
-    <div class="conversation-body">
-      <!--        <Message :attachments="null" sender="me" text="Lorem ipsum dolor sit amet" :timestamp="1701510226"/>-->
-      <Message :attachments="null" sender="friend" text="Bienvenue sur Métacafé !" :timestamp="1702416035"/>
-    </div>
+    <ConversationBody :messages="messages" :key="messageKey"/>
     <div class="conversation-footer">
       <div class="upper-popups">
         <EmojiPicker @insertEmoji="insertEmoji"/>

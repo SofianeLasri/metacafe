@@ -5,6 +5,7 @@ import * as mapper from './mapper';
 import {CenterOfInterest, Message, User} from "../../interfaces";
 import {UserOutput, userPublicProfile} from "../../../db/models/User";
 import {Activity} from "../../../db/models";
+import {MessageOutput} from "../../../db/models/Message";
 
 export const create = async (payload: CreateUserDTO): Promise<User> => {
     return mapper.toUser(await service.create(payload));
@@ -199,6 +200,6 @@ export const sendMessage = async (senderId: number, targetUserId: number, messag
     return await service.sendMessage(senderId, targetUserId, message);
 }
 
-export const getMessages = async (userId: number, targetUserId: number): Promise<Message[]> => {
+export const getMessages = async (userId: number, targetUserId: number): Promise<MessageOutput[]> => {
     return await service.getMessages(userId, targetUserId);
 }

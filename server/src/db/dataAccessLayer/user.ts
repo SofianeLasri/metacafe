@@ -7,6 +7,7 @@ import {AttachmentOutput} from "../models/Attachment";
 import {friendRelationType} from "../models/Friend";
 import {activityType} from "../models/Activity";
 import {Sequelize} from "sequelize-typescript";
+import {MessageOutput} from "../models/Message";
 
 export const create = async (payload: UserInput): Promise<UserOutput> => {
     let user: User = await User.create(payload);
@@ -291,7 +292,7 @@ export const sendMessage = async (userId: number, targetUserId: number, text: st
     }
 }
 
-export const getMessages = async (userId: number, targetUserId: number): Promise<Message[]> => {
+export const getMessages = async (userId: number, targetUserId: number): Promise<MessageOutput[]> => {
     try {
         return await Message.findAll({
             where: {

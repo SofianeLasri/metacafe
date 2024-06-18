@@ -4,11 +4,12 @@ import {GetAllUsersFilters} from "../../db/dataAccessLayer/types";
 import {CenterOfInterest, Message} from "../interfaces";
 import {Activity} from "../../db/models";
 import {friendRelationType} from "../../db/models/Friend";
+import {MessageOutput} from "../../db/models/Message";
 
 export const create = async (payload: UserInput): Promise<UserOutput> => {
     let user: UserOutput = await userDal.create(payload);
-    await userDal.addActivity(user.id, 1, 'friendRequest');
-    await userDal.sendMessage(user.id, 1, 'Bienvenue sur Métacafé ! Ici tu peux rencontrer des gens qui partagent les mêmes centres d\'intérêt que toi. Utilise la fonction de recherche pour trouver des personnes qui partagent tes passions et envoie-leur un message pour faire connaissance !');
+    await userDal.addActivity(1, user.id, 'friendRequest');
+    await userDal.sendMessage(1, user.id, 'Bienvenue sur Métacafé ! Ici tu peux rencontrer des gens qui partagent les mêmes centres d\'intérêt que toi. Utilise la fonction de recherche pour trouver des personnes qui partagent tes passions et envoie-leur un message pour faire connaissance !');
     return user;
 }
 
@@ -139,6 +140,6 @@ export const sendMessage = (senderId: number, receiverId: number, content: strin
     return userDal.sendMessage(senderId, receiverId, content);
 }
 
-export const getMessages = (userId: number, targetUserId: number): Promise<Message[]> => {
+export const getMessages = (userId: number, targetUserId: number): Promise<MessageOutput[]> => {
     return userDal.getMessages(userId, targetUserId);
 }
