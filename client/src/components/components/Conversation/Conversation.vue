@@ -10,23 +10,21 @@ import {faBars, faMicrophone, faPaperPlane} from "@fortawesome/free-solid-svg-ic
 import ConversationBody from "~@/components/components/Conversation/ConversationBody.vue";
 import {fetchApi, getJsonHeaders} from "~@/helpers.ts";
 import apiConfig from '~@/config/apiConfig.ts';
+import MessageInput from "~@/components/components/Conversation/MessageInput.vue";
 
-const {user: {getMessages}} = apiConfig;
+const {user: {getMessages, sendMessage}, attachment} = apiConfig;
 
 library.add(faSmile, faImage, faMicrophone, faBars, faPaperPlane);
 
 const props = defineProps<{
   targetUser: UserPublicProfile | null;
-}>()
+}>();
 
 const emit = defineEmits<{
-  (e: 'askedForOpeningSidebar'): void
-}>()
+  (e: 'askedForOpeningSidebar'): void;
+}>();
 
-const serverBaseUrl = import.meta.env.VITE_BACKEND_URL as string;
-const getAttachmentApiUrl = `${serverBaseUrl}/api/attachment/`;
-
-const targetUserProfilePictureUrl = props.targetUser?.profilePicture ? getAttachmentApiUrl + props.targetUser.profilePicture : profilePic;
+const targetUserProfilePictureUrl = props.targetUser?.profilePicture ? attachment + props.targetUser.profilePicture : profilePic;
 const messages = ref<Message[]>([]);
 const messageKey = ref(0);
 
@@ -66,6 +64,20 @@ function fetchMessages(): void {
   });
 }
 
+async function handleSendMessage(message: string) {
+  if (props.targetUser) {
+    const targetUserId = props.targetUser.id;
+    const url = `${sendMessage}${targetUserId}`;
+
+    await fetchApi(url, {
+      method: 'PUT',
+      headers: getJsonHeaders(),
+      body: JSON.stringify({message}),
+    });
+
+    fetchMessages();
+  }
+}
 </script>
 
 <template>
@@ -95,10 +107,7 @@ function fetchMessages(): void {
       <button type="button" id="sendPictureBtn">
         <font-awesome-icon :icon="['far', 'image']"/>
       </button>
-      <input id="messageInput" type="text" placeholder="Tapez votre message ici">
-      <button type="button" id="openSidebarBtn">
-        <font-awesome-icon :icon="['fas', 'paper-plane']"/>
-      </button>
+      <MessageInput @sendMessage="handleSendMessage"/>
     </div>
   </div>
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Message from "~@/components/components/Conversation/Message.vue";
 import {Message as MessageType} from "~@/types.ts";
+import {onMounted} from "vue";
 
 const props = defineProps<{
   messages: MessageType[];
@@ -12,7 +13,6 @@ const allMessages: any = [];
 
 props.messages.forEach(message => {
   let sender = "friend";
-  console.log(userId);
   if(message.senderUserId == userId) {
     sender = "me";
   }
@@ -26,13 +26,20 @@ props.messages.forEach(message => {
   });
 });
 
+onMounted(() => {
+  const scrollable = document.querySelector('.scrollable')!;
+  const conversationBody = document.querySelector('.conversation-body')!;
+  conversationBody.scrollTop = scrollable.scrollHeight;
+});
+
 </script>
 
 <template>
   <div class="conversation-body">
-    <!--        <Message :attachments="null" sender="me" text="Lorem ipsum dolor sit amet" :timestamp="1701510226"/>-->
-<!--    <Message :attachments="null" sender="friend" text="Bienvenue sur Métacafé !" :timestamp="1702416035"/>-->
-    <Message v-for="message in allMessages" :key="message.timestamp" :attachments="null" :sender="message.sender" :text="message.text" :timestamp="message.timestamp"/>
+    <div class="scrollable">
+      <Message v-for="message in allMessages" :key="message.timestamp"
+               :attachments="null" :sender="message.sender" :text="message.text" :timestamp="message.timestamp"/>
+    </div>
   </div>
 </template>
 
