@@ -6,6 +6,7 @@ const props = defineProps<{
   elementId?: string;
   id: number;
   username: string;
+  profilePicture: number|null;
   avatar: string;
   status: string;
   actionText?: string;
@@ -25,7 +26,8 @@ onMounted(() => {
     emit("profileClicked", {
       id: props.id,
       name: props.username,
-      status: props.status
+      status: props.status,
+      profilePicture: props.profilePicture,
     });
   });
 });

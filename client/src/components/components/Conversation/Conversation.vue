@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ProfileCard from "~@/components/components/Ui/ProfileCard.vue";
-import profilePic from "~@/assets/images/square-logo-with-background.avif?url";
+import defaultProfilePic from "~@/assets/images/square-logo-with-background.avif?url";
 import {Message, UserPublicProfile} from "~@/types.ts";
 import {onMounted, ref} from "vue";
 import EmojiPicker from "~@/components/components/Ui/EmojiPicker.vue";
@@ -24,7 +24,7 @@ const emit = defineEmits<{
   (e: 'askedForOpeningSidebar'): void;
 }>();
 
-const targetUserProfilePictureUrl = props.targetUser?.profilePicture ? attachment + props.targetUser.profilePicture : profilePic;
+const targetUserProfilePictureUrl = ref(defaultProfilePic);
 const messages = ref<Message[]>([]);
 const messageKey = ref(0);
 
@@ -47,6 +47,9 @@ function handleConversationLogic() {
   pickEmojiBtn.addEventListener("click", () => {
     emojiPicker.classList.toggle("active");
   });
+
+  targetUserProfilePictureUrl.value = props.targetUser!.profilePicture ? attachment + props.targetUser!.profilePicture : defaultProfilePic;
+  console.log(attachment + props.targetUser!.profilePicture);
 }
 
 function insertEmoji(emoji: string): void {
@@ -90,6 +93,7 @@ async function handleSendMessage(message: string) {
           :id="props.targetUser.id"
           :username="props.targetUser.name"
           :avatar="targetUserProfilePictureUrl"
+          :profile-picture="props.targetUser.profilePicture!"
           :status="props.targetUser.status"
       />
     </div>

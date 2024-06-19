@@ -97,6 +97,7 @@ function profileClicked(user: UserPublicProfile) {
             :id="userId"
             :username="userName"
             :avatar="userProfilePictureUrl"
+            :profilePicture="null"
             :action-text="`Voir le profil`"
             :action-link="`#`"
             status="En ligne"/>
@@ -112,6 +113,7 @@ function profileClicked(user: UserPublicProfile) {
             element-id="friendProfile"
             :id="user.id"
             :username="`${user.name}`"
+            :profilePicture="user.profilePicture!"
             :avatar="`${getAttachmentApiUrl}${user.profilePicture}`"
             :status="`${user.status}`"
             @profileClicked="profileClicked"
@@ -121,6 +123,7 @@ function profileClicked(user: UserPublicProfile) {
             element-id="friendProfile"
             :id="user.id"
             :username="`${user.name}`"
+            :profilePicture="user.profilePicture!"
             :avatar="`${defaultProfilePic}`"
             :status="`${user.status}`"
             @profileClicked="profileClicked"
