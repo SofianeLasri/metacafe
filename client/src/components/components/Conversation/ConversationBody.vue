@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Message from "~@/components/components/Message.vue";
+import Message from "~@/components/components/Conversation/Message.vue";
 import {Message as MessageType} from "~@/types.ts";
 
 const props = defineProps<{

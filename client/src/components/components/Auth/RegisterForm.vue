@@ -4,7 +4,7 @@
 
 <template>
   <div class="logo">
-    <img src="../../assets/images/Logo-Large-White.avif" alt="logo"/>
+    <img src="../../../assets/images/Logo-Large-White.avif" alt="logo"/>
   </div>
   <form class="form" data-form-type="register">
     <h4>Créer un compte</h4>

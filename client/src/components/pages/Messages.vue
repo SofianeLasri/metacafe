@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import SideBar from '~@/components/components/SideBar.vue';
-import Conversation from '~@/components/components/Conversation.vue';
+import SideBar from '~@/components/components/Ui/SideBar.vue';
+import Conversation from '~@/components/components/Conversation/Conversation.vue';
 import {UserPublicProfile, Activity} from '~@/types.ts';
 import {fetchApi, getAuthHeaders} from '~@/helpers.ts';
 import apiConfig from '~@/config/apiConfig.ts';

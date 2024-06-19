@@ -13,7 +13,7 @@ const emit = defineEmits<{
   (e: 'closeBtnClicked', id: string): void
 }>()
 
-const closeBtnClicked = (event: Event) => {
+const closeBtnClicked = () => {
   emit("closeBtnClicked", props.id);
 }
 </script>

@@ -4,7 +4,7 @@
 
 <template>
   <div class="logo">
-    <img src="../../assets/images/Logo-Large-White.avif" alt="logo"/>
+    <img src="../../../assets/images/Logo-Large-White.avif" alt="logo"/>
   </div>
   <form id="loginForm" class="form" data-form-type="login">
     <h4>Connexion</h4>

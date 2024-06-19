@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import ProfileCard from "~@/components/components/ProfileCard.vue";
+import ProfileCard from "~@/components/components/Ui/ProfileCard.vue";
 import profilePic from "~@/assets/images/square-logo-with-background.avif?url";
 import {Message, UserPublicProfile} from "~@/types.ts";
 import {onMounted, ref} from "vue";
-import EmojiPicker from "~@/components/components/EmojiPicker.vue";
+import EmojiPicker from "~@/components/components/Ui/EmojiPicker.vue";
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {faImage, faSmile} from '@fortawesome/free-regular-svg-icons'
 import {faBars, faMicrophone, faPaperPlane} from "@fortawesome/free-solid-svg-icons";
-import ConversationBody from "~@/components/components/ConversationBody.vue";
+import ConversationBody from "~@/components/components/Conversation/ConversationBody.vue";
 import {fetchApi, getJsonHeaders} from "~@/helpers.ts";
 import apiConfig from '~@/config/apiConfig.ts';
 
@@ -105,7 +105,7 @@ function fetchMessages(): void {
   <div id="noConversationWrapper" v-else
        class="no-conversation flex-grow-1 d-flex flex-column align-items-center justify-content-center text-white">
     <div class="content d-flex flex-column align-items-center justify-content-center text-center">
-      <img src="../../assets/images/logo.svg" alt="Métacafé logo" class="mb-2" style="width: 5rem; height: 5rem;"/>
+      <img src="../../../assets/images/logo.svg" alt="Métacafé logo" class="mb-2" style="width: 5rem; height: 5rem;"/>
       <h4>Bienvenue sur Métacafé !</h4>
       <p>Ici vous pouvez discuter avec des personnes ayant les mêmes centres d'intérêts que vous !</p>
     </div>

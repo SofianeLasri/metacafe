@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {onMounted} from 'vue';
 import router from '~@/router.ts';
-import RegisterForm from '~@/components/components/RegisterForm.vue';
-import LoginForm from '~@/components/components/LoginForm.vue';
+import RegisterForm from '~@/components/components/Auth/RegisterForm.vue';
+import LoginForm from '~@/components/components/Auth/LoginForm.vue';
 import defaultProfilePic from '~@/assets/images/square-logo-with-background.avif?url';
 import {fetchApi, getJsonHeaders} from '~@/helpers.ts';
 import apiConfig from '~@/config/apiConfig.ts';

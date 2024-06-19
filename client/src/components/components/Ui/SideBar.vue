@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ProfileCard from "~@/components/components/ProfileCard.vue";
-import SearchZone from "~@/components/components/SearchZone.vue";
+import ProfileCard from "~@/components/components/Ui/ProfileCard.vue";
+import SearchZone from "~@/components/components/Ui/SearchZone/SearchZone.vue";
 import defaultProfilePic from "~@/assets/images/square-logo-with-background.avif?url";
 import {onMounted, ref} from "vue";
 import {Activity, UserPublicProfile} from "~@/types.ts";

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {createApp, onMounted, ref} from 'vue';
 import router from '~@/router.ts';
-import SearchZone from '~@/components/components/SearchZone.vue';
-import InteractiveBadge from '~@/components/components/InteractiveBadge.vue';
+import SearchZone from '~@/components/components/Ui/SearchZone/SearchZone.vue';
+import InteractiveBadge from '~@/components/components/Ui/InteractiveBadge.vue';
 import defaultProfilePic from '~@/assets/images/square-logo-with-background.avif?url';
 import {fetchApi, getAuthHeaders, getJsonHeaders} from '~@/helpers.ts';
 import {CenterOfInterest} from "~@/types.ts";

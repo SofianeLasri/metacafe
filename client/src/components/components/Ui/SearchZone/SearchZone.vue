@@ -2,7 +2,7 @@
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faMagnifyingGlass} from '@fortawesome/free-solid-svg-icons';
 import {App, createApp, onMounted} from "vue";
-import SimpleResult from "~@/components/components/SearchZoneResults/SimpleResult.vue";
+import SimpleResult from "~@/components/components/Ui/SearchZone/SimpleResult.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const props = defineProps<{
