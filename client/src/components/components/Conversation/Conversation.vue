@@ -11,8 +11,9 @@ import ConversationBody from "~@/components/components/Conversation/Conversation
 import {fetchApi, getJsonHeaders} from "~@/helpers.ts";
 import apiConfig from '~@/config/apiConfig.ts';
 import MessageInput from "~@/components/components/Conversation/MessageInput.vue";
+import {io} from "socket.io-client";
 
-const {user: {getMessages, sendMessage}, attachment} = apiConfig;
+const {serverBaseUrl, user: {getMessages, sendMessage}, attachment} = apiConfig;
 
 library.add(faSmile, faImage, faMicrophone, faBars, faPaperPlane);
 
@@ -23,6 +24,25 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'askedForOpeningSidebar'): void;
 }>();
+
+// TODO : Faire de vrai conversations en base
+const socketChannelName: string = (parseInt(localStorage.getItem("userId")!) + (props.targetUser ? props.targetUser.id : 0)).toString();
+
+const socket = io("http://localhost:3000", {
+  query: {channel: socketChannelName}
+});
+
+socket.on("connect", () => {
+  console.log("Connected to server on channel " + socketChannelName);
+
+  socket.on("message", (message) => {
+    fetchMessages();
+  });
+});
+
+socket.on("disconnect", () => {
+  console.log("Disconnected from server");
+});
 
 const targetUserProfilePictureUrl = ref(defaultProfilePic);
 const messages = ref<Message[]>([]);
@@ -77,6 +97,8 @@ async function handleSendMessage(message: string) {
       headers: getJsonHeaders(),
       body: JSON.stringify({message}),
     });
+
+    socket.emit("message", {channel: socketChannelName, content: message});
 
     fetchMessages();
   }

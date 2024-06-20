@@ -1,5 +1,7 @@
 import cors from 'cors';
 import express, {Express} from 'express';
+import http from 'http';
+import {Server as SocketIOServer} from 'socket.io';
 import routes from "../routes";
 import session from 'express-session';
 import passport from "passport";
@@ -8,6 +10,8 @@ import User from "../../db/models/User";
 
 export class ExpressServer {
     private express: Express = express();
+    private server: http.Server;
+    private io: SocketIOServer;
     private readonly port: string;
     private readonly secret: string;
     private readonly corsAllowedOrigins: string[];
@@ -20,12 +24,20 @@ export class ExpressServer {
         this.port = port;
         this.secret = secret;
         this.corsAllowedOrigins = allowedOrigins;
+        this.server = http.createServer(this.express);
+        this.io = new SocketIOServer(this.server, {
+            cors: {
+                origin: this.corsAllowedOrigins,
+                methods: ['GET', 'POST']
+            }
+        });
         this.configureMiddlewares();
         this.configureRoutes();
+        this.configureSocketIO();
     }
 
     bootstrap(): void {
-        this.express.listen(this.port, () => {
+        this.server.listen(this.port, () => {
             console.log(`> Listening on port ${this.port}`);
         });
     }
@@ -84,6 +96,31 @@ export class ExpressServer {
             } catch (error) {
                 done(error);
             }
+        });
+    }
+
+    // TODO : Faire de vrai conversations en base
+    private configureSocketIO(): void {
+        this.io.on('connection', (socket) => {
+            console.log('A user connected');
+
+            const channelId = socket.handshake.query.channel;
+            if (channelId) {
+                socket.join(channelId);
+                console.log(`User room ${channelId}`);
+            }
+
+            socket.on('disconnect', () => {
+                console.log('User disconnected');
+            });
+
+            socket.on('message', (message) => {
+                const channelId: string = message.channel;
+                console.log(`Received message for channel ${channelId}:`, message);
+
+                // Envoyer le message à la salle de l'utilisateur cible
+                this.io.to(channelId).emit('message', message);
+            });
         });
     }
 }
