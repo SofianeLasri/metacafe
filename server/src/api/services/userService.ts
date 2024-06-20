@@ -143,3 +143,13 @@ export const sendMessage = (senderId: number, receiverId: number, content: strin
 export const getMessages = (userId: number, targetUserId: number): Promise<MessageOutput[]> => {
     return userDal.getMessages(userId, targetUserId);
 }
+
+export const handleIncomingMessage = async (message: Message): Promise<void> => {
+    try {
+        console.log('Handling incoming message:', message);
+        await userDal.sendMessage(message.senderUserId, message.receiverUserId, message.text);
+    } catch (error) {
+        console.error('Failed to handle incoming message:', error);
+        throw error;
+    }
+};

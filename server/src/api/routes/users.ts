@@ -5,6 +5,7 @@ import {CreateUserDTO, FilterUsersDTO, UpdateUserDTO} from "../dataTransferObjec
 import {CenterOfInterest, User} from "../interfaces";
 import {isAuthenticated, jsonParser} from "../infrastructure/authentication";
 import multer from "multer";
+import RabbitMQ from "../infrastructure/rabbitmq";
 
 const router: Router = Router();
 const upload: multer.Multer = multer({dest: 'uploads'})
@@ -123,13 +124,19 @@ router.put('/me/friends/reject', isAuthenticated, userController.rejectFriendReq
 router.get('/me/activity', isAuthenticated, userController.getActivities);
 
 router.put('/me/sendMessage/:targetUserId', isAuthenticated, jsonParser, async (req: Request, res: Response) => {
-    let user: User = req.user as User;
+    let user = req.user as User;
     user = await userController.getById(user.id);
 
     const targetUserId: number = Number(req.params.targetUserId);
     const message: string = req.body.message;
 
-    await userController.sendMessage(user.id, targetUserId, message);
+    const messagePayload = {
+        senderId: user.id,
+        targetUserId,
+        message,
+    };
+
+    await RabbitMQ.sendMessage('messages', JSON.stringify(messagePayload));
 
     return res.status(200).send();
 });

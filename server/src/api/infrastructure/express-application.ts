@@ -1,6 +1,8 @@
-import {ExpressServer} from './express-server';
+import { ExpressServer } from './express-server';
 import * as dotenv from 'dotenv';
 import dbInit from "../../db/inits";
+import RabbitMQ from './rabbitmq';
+import '../consumers/message';
 
 export class ExpressApplication {
     private port!: string;
@@ -12,7 +14,10 @@ export class ExpressApplication {
         this.configureApplication();
     }
 
-    bootstrap(): void {
+    async bootstrap(): Promise<void> {
+        const user = process.env.RABBITMQ_DEFAULT_USER!;
+        const password = process.env.RABBITMQ_DEFAULT_PASS!;
+        await RabbitMQ.connect("amqp://" + user + ":" + password + "@localhost:5672");
         this.server.bootstrap();
     }
 
@@ -24,9 +29,7 @@ export class ExpressApplication {
     }
 
     private configureEnvironment(): void {
-        dotenv.config({
-            path: '.env',
-        });
+        dotenv.config();
     }
 
     private configureEnvVariables(): void {
