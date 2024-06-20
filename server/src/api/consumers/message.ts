@@ -17,7 +17,6 @@ async function consumeMessages() {
             console.log('Received message:', messagePayload);
 
             try {
-                // Traitez le message ici
                 await userService.handleIncomingMessage(messagePayload);
             } catch (error) {
                 console.error('Failed to process message:', error);

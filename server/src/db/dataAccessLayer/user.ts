@@ -280,6 +280,7 @@ export const addActivity = async (userId: number, targetUserId: number, type: ac
 
 export const sendMessage = async (userId: number, targetUserId: number, text: string): Promise<void> => {
     try {
+        console.log('Sending message to',targetUserId, 'from', userId, 'with text:', text);
         await addActivity(userId, targetUserId, 'sendMessage');
         await Message.create({
             senderUserId: userId,
