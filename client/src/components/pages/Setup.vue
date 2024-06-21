@@ -84,6 +84,8 @@ function addCenterOfInterest(centerOfInterest: SearchZoneResult | CenterOfIntere
     centerOfInterestId = centerOfInterest.id;
   }
 
+  console.log(centerOfInterest)
+
   centersOfInterestList.value.push({id: centerOfInterestId, name: centerOfInterestName});
 
   const tempDiv = document.createElement('div');

@@ -247,16 +247,14 @@ export const rejectFriendRequest = async (userId: number, friendUserId: number):
 export const getActivities = async (userId: number): Promise<Activity[]> => {
     try {
         return await Activity.findAll({
-            where: {
-                userId: userId,
-            },
+            where: {targetUserId: userId},
             attributes: [
                 'targetUserId',
-                [Sequelize.fn('max', Sequelize.col('createdAt')), 'latestCreatedAt'],
-                // Autres attributs que vous voulez récupérer
+                'userId',
+                'createdAt'
             ],
-            group: ['targetUserId'],
-            order: [['latestCreatedAt', 'DESC']],
+            group: ['userId'],
+            order: [['createdAt', 'DESC']],
         });
     } catch (error) {
         console.error(error);

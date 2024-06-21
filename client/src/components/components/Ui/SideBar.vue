@@ -30,7 +30,13 @@ const userId: number = parseInt(localStorage.getItem("userId")!);
 const acitivitiesSortedUsersList: UserPublicProfile[] = [];
 
 props.activities.forEach((activity: Activity) => {
-  let user: UserPublicProfile = props.users.find((user: UserPublicProfile) => user.id === activity.targetUserId)!;
+  let user: UserPublicProfile;
+
+  if(activity.targetUserId == userId) {
+    user = props.users.find((user: UserPublicProfile) => user.id === activity.userId)!;
+  } else {
+    user = props.users.find((user: UserPublicProfile) => user.id === activity.targetUserId)!;
+  }
   acitivitiesSortedUsersList.push(user);
 });
 

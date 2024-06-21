@@ -25,8 +25,8 @@ async function getFriends() {
 async function getActivities() {
   activities.value = await fetchApi(activity, {method: 'GET', headers: getAuthHeaders()});
   for (const activity of activities.value) {
-    if (!allCachedUsers.value.some(user => user.id === activity.targetUserId)) {
-      const targetUser = await fetchApi(`${userApiUrl}/${activity.targetUserId}`, {
+    if (!allCachedUsers.value.some(user => user.id === activity.userId)) {
+      const targetUser = await fetchApi(`${userApiUrl}/${activity.userId}`, {
         method: 'GET',
         headers: getAuthHeaders()
       });
