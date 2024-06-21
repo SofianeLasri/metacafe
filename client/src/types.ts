@@ -25,11 +25,8 @@ export type Attachment = {
 export type ActivityType = "friendRequest" | "sendMessage";
 
 export type Activity = {
-    id: number;
     userId: number;
-    targetUserId: number;
-    type: ActivityType;
-    isNew: boolean;
+    createdAt: Date;
 }
 
 export type Sender = "me" | "friend";

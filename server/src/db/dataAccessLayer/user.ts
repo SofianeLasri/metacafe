@@ -5,7 +5,7 @@ import {GetAllUsersFilters} from "./types";
 import * as AttachmentDAL from './attachment';
 import {AttachmentOutput} from "../models/Attachment";
 import {friendRelationType} from "../models/Friend";
-import {activityType} from "../models/Activity";
+import {ActivityOutput, activityType} from "../models/Activity";
 import {Sequelize} from "sequelize-typescript";
 import {MessageOutput} from "../models/Message";
 
@@ -244,18 +244,37 @@ export const rejectFriendRequest = async (userId: number, friendUserId: number):
     }
 };
 
-export const getActivities = async (userId: number): Promise<Activity[]> => {
+export const getActivities = async (userId: number): Promise<ActivityOutput[]> => {
+    console.log('Getting activities for user', userId);
     try {
-        return await Activity.findAll({
-            where: {targetUserId: userId},
+        const activities = await Activity.findAll({
+            where: {
+                [Op.or]: [
+                    { userId: userId },
+                    { targetUserId: userId }
+                ]
+            },
             attributes: [
-                'targetUserId',
                 'userId',
+                'targetUserId',
                 'createdAt'
             ],
-            group: ['userId'],
-            order: [['createdAt', 'DESC']],
+            order: [['createdAt', 'DESC']]
         });
+
+        const uniqueInteractions = new Map();
+
+        activities.forEach(activity => {
+            const interactedUserId = activity.userId === userId ? activity.targetUserId : activity.userId;
+            if (!uniqueInteractions.has(interactedUserId)) {
+                uniqueInteractions.set(interactedUserId, activity.createdAt);
+            }
+        });
+
+        return Array.from(uniqueInteractions.entries()).map(([interactedUserId, createdAt]) => ({
+            userId: interactedUserId,
+            createdAt
+        }));
     } catch (error) {
         console.error(error);
         throw new Error('Failed to get user activity');

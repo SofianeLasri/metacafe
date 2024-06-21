@@ -33,11 +33,7 @@ const acitivitiesSortedUsersList: UserPublicProfile[] = [];
 props.activities.forEach((activity: Activity) => {
   let user: UserPublicProfile;
 
-  if(activity.targetUserId == userId) {
-    user = props.cachedUsers.find((user: UserPublicProfile) => user.id === activity.userId)!;
-  } else {
-    user = props.cachedUsers.find((user: UserPublicProfile) => user.id === activity.targetUserId)!;
-  }
+  user = props.cachedUsers.find((user: UserPublicProfile) => user.id === activity.userId)!;
   acitivitiesSortedUsersList.push(user);
 });
 

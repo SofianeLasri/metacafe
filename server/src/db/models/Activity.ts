@@ -16,7 +16,10 @@ interface ActivityAttributes {
 }
 
 export interface ActivityInput extends Optional<ActivityAttributes, 'id'> {}
-export interface ActivityOutput extends Required<ActivityAttributes> {}
+export interface ActivityOutput {
+    userId: number;
+    createdAt: Date;
+}
 
 class Activity extends Model<ActivityAttributes, ActivityInput> implements ActivityAttributes {
     public id!: number;

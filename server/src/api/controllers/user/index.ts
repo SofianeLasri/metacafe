@@ -6,6 +6,7 @@ import {CenterOfInterest, Message, User} from "../../interfaces";
 import {UserOutput, userPublicProfile} from "../../../db/models/User";
 import {Activity} from "../../../db/models";
 import {MessageOutput} from "../../../db/models/Message";
+import {ActivityOutput} from "../../../db/models/Activity";
 
 export const create = async (payload: CreateUserDTO): Promise<User> => {
     return mapper.toUser(await service.create(payload));
@@ -176,7 +177,7 @@ export const getPublicProfileById = async (req: Request, res: Response) => {
 export const getActivities = async (req: Request, res: Response) => {
     try {
         const user: User = req.user as User;
-        const activities: Activity[] = await service.getActivities(user.id);
+        const activities: ActivityOutput[] = await service.getActivities(user.id);
         res.status(200).json(activities);
     } catch (error) {
         console.error(error);

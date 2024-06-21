@@ -5,6 +5,7 @@ import {CenterOfInterest, Message} from "../interfaces";
 import {Activity} from "../../db/models";
 import {friendRelationType} from "../../db/models/Friend";
 import {MessageOutput} from "../../db/models/Message";
+import {ActivityOutput} from "../../db/models/Activity";
 
 export const create = async (payload: UserInput): Promise<UserOutput> => {
     let user: UserOutput = await userDal.create(payload);
@@ -111,7 +112,7 @@ export const rejectFriendRequest = async (userId: number, friendUserId: number):
     }
 };
 
-export const getActivities = async (userId: number): Promise<Activity[]> => {
+export const getActivities = async (userId: number): Promise<ActivityOutput[]> => {
     try {
         return await userDal.getActivities(userId);
     } catch (error) {
