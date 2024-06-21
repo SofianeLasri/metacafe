@@ -92,7 +92,8 @@ function showFullProfileCard(user: UserPublicProfile) {
                   :targetUser="currentConversation" :key="currentConversationKey"/>
   </div>
   <FullProfileCard :user="fullProfileCardUser" v-if="fullProfileCardUser" :key="fullProfileCardUser.id"
-                   @closeFullProfileCard="fullProfileCardUser = null"/>
+                   @closeFullProfileCard="fullProfileCardUser = null"
+                   @sendMessageToUser="loadConversation"/>
 </template>
 
 <style scoped>

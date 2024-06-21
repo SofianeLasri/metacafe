@@ -15,10 +15,15 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'closeFullProfileCard'): void
+  (e: 'sendMessageToUser', user: UserPublicProfile): void
 }>()
 
 const userId: number = parseInt(localStorage.getItem("userId")!);
 const profilePictureUrl: string = props.user.profilePicture ? `${attachment}/${props.user.profilePicture}` : defaultProfilePic;
+
+function sendMessageToUser() {
+  emit("sendMessageToUser", props.user);
+}
 </script>
 
 <template>
@@ -41,13 +46,14 @@ const profilePictureUrl: string = props.user.profilePicture ? `${attachment}/${p
             </div>
           </div>
 
-          <button type="button" v-if="props.user.id !== userId"
-                  class="btn btn-primary">Ajouter en amis
+          <button type="button" v-if="props.user.id !== userId" @click="sendMessageToUser"
+                  class="btn btn-primary">Envoyer un message
           </button>
         </div>
       </div>
 
       <h5>Centres d'intérêts</h5>
+      <p>Work in progress</p>
     </div>
   </div>
 </template>
