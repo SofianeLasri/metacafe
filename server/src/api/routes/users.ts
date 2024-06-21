@@ -183,9 +183,15 @@ router.post('/search', isAuthenticated, jsonParser, async (req: Request, res: Re
     const filters: FilterUsersDTO = {
         name: req.body.search ? req.body.search : '',
     };
-    console.log("searching for users with filters: ", filters);
+    const fetchedUsers: User[] = await userController.getAll(filters);
+    const result: Array<any> = fetchedUsers.map((user: User) => {
+        return {
+            name: user.name,
+            value: user.id,
+            attachment: user.profilePicture,
+        }
+    });
 
-    const result: User[] = await userController.getAll(filters);
     return res.status(200).send(result);
 });
 

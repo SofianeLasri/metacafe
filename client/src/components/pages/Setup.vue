@@ -5,7 +5,7 @@ import SearchZone from '~@/components/components/Ui/SearchZone/SearchZone.vue';
 import InteractiveBadge from '~@/components/components/Ui/InteractiveBadge.vue';
 import defaultProfilePic from '~@/assets/images/square-logo-with-background.avif?url';
 import {fetchApi, getAuthHeaders, getJsonHeaders} from '~@/helpers.ts';
-import {CenterOfInterest} from "~@/types.ts";
+import {CenterOfInterest, SearchZoneResult} from "~@/types.ts";
 import apiConfig from '~@/config/apiConfig.ts';
 
 const {user: {me, updateProfilePic, centersOfInterest}, attachment, centerOfInterest: {matchByName}} = apiConfig;
@@ -75,9 +75,14 @@ async function getCentersOfInterest() {
   }
 }
 
-function addCenterOfInterest(centerOfInterest: HTMLElement | CenterOfInterest) {
-  const centerOfInterestId = centerOfInterest instanceof HTMLElement ? parseInt(centerOfInterest.dataset.value!) : centerOfInterest.id;
-  const centerOfInterestName = centerOfInterest instanceof HTMLElement ? centerOfInterest.dataset.text! : centerOfInterest.name;
+function addCenterOfInterest(centerOfInterest: SearchZoneResult | CenterOfInterest) {
+  const centerOfInterestName = centerOfInterest.name;
+  let centerOfInterestId: number;
+  if ('value' in centerOfInterest) {
+    centerOfInterestId = parseInt(centerOfInterest.value);
+  } else {
+    centerOfInterestId = centerOfInterest.id;
+  }
 
   centersOfInterestList.value.push({id: centerOfInterestId, name: centerOfInterestName});
 

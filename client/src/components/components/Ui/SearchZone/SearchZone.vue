@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faMagnifyingGlass} from '@fortawesome/free-solid-svg-icons';
-import {App, createApp, onMounted} from "vue";
+import {App, createApp, onMounted, ref} from "vue";
 import SimpleResult from "~@/components/components/Ui/SearchZone/SimpleResult.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {SearchZoneResult} from "~@/types.ts";
+import ResultWithAttachment from "~@/components/components/Ui/SearchZone/ResultWithAttachment.vue";
 
 const props = defineProps<{
   id: string;
@@ -13,13 +15,15 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'resultClick', element: HTMLElement): void
+  (e: 'resultClick', result: SearchZoneResult): void
 }>()
 
 library.add(faMagnifyingGlass);
 
 const searchInputId: string = props.id + "SearchInput";
 const searchResultsId: string = props.id + "SearchResults";
+const results = ref<Array<SearchZoneResult>>([]);
+const resultKeys = ref<number>(0);
 
 onMounted(() => {
   const searchZone: HTMLElement = document.getElementById(props.id)! as HTMLElement;
@@ -48,7 +52,8 @@ onMounted(() => {
     }).then(async (response) => {
       if (response.ok) {
         const responseJson = await response.json();
-        console.log(responseJson);
+        results.value = responseJson;
+        resultKeys.value++;
         showResults(responseJson);
       } else {
         const isResponseJson = response.headers.get("content-type")?.includes("application/json");
@@ -62,42 +67,22 @@ onMounted(() => {
     });
   });
 
-  function showResults(results: Array<any>) {
-    searchResults.innerHTML = "";
-
+  function showResults(results: Array<SearchZoneResult>) {
     if (results.length === 0) {
       searchResults.classList.add("d-none");
       return;
     }
     searchResults.classList.remove("d-none");
-
-    results.forEach((result) => {
-      let resultVueComponent: App<Element>;
-      let tempDiv = document.createElement("div");
-
-      if (result.picture) {
-        resultVueComponent = createApp({extends: SimpleResult}, {
-          text: result.name,
-          value: result.id
-        });
-      } else {
-        resultVueComponent = createApp({extends: SimpleResult}, {
-          text: result.name,
-          value: result.id
-        });
-      }
-
-      resultVueComponent.mount(tempDiv);
-      tempDiv.firstElementChild!.addEventListener("click", (event) => {
-        emit("resultClick", event.target as HTMLElement);
-        if (props.clearInputOnResultClick) {
-          searchInput.value = "";
-        }
-      });
-      searchResults.appendChild(tempDiv.firstElementChild!);
-    });
   }
 });
+
+function resultClick(result: SearchZoneResult) {
+  emit("resultClick", result);
+  if (props.clearInputOnResultClick) {
+    const searchInput: HTMLInputElement = document.getElementById(searchInputId)! as HTMLInputElement;
+    searchInput.value = "";
+  }
+}
 </script>
 
 <template>
@@ -109,6 +94,11 @@ onMounted(() => {
       <input :id="searchInputId" type="text" :placeholder="placeholder">
     </div>
     <div :id="searchResultsId" class="results d-none">
+      <template v-for="result in results" :key="resultKeys">
+        <ResultWithAttachment v-if="result.attachment" :name="result.name" :value="result.value"
+                              :attachment="result.attachment" @resultClicked="resultClick"/>
+        <SimpleResult v-else :name="result.name" :value="result.value" @resultClicked="resultClick"/>
+      </template>
 
     </div>
   </div>

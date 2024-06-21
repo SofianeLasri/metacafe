@@ -47,3 +47,9 @@ export interface Message {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+export interface SearchZoneResult {
+    name: string;
+    value: string;
+    attachment?: number;
+}

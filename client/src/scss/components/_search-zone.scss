@@ -73,5 +73,29 @@
                 margin-left: map.get($spacers, 1);
             }
         }
+
+        .result-with-attachment {
+            display: flex;
+            gap: map.get($spacers, 3);
+            align-items: center;
+            padding: map.get($spacers, 1);
+
+            .profile-picture {
+                flex-shrink: 0;
+                position: relative;
+                width: 3.5rem;
+                aspect-ratio: 1;
+                border-radius: 50%;
+
+                border: map.get($border-widths, 3) solid $danger;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+
+            &:hover {
+                background-color: $light;
+            }
+        }
     }
 }
