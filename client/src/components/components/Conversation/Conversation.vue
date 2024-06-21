@@ -23,6 +23,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'askedForOpeningSidebar'): void;
+  (e: 'showFullProfileCard', user: UserPublicProfile): void;
 }>();
 
 // TODO : Faire de vrai conversations en base
@@ -128,6 +129,7 @@ async function handleSendMessage(message: string) {
           :avatar="targetUserProfilePictureUrl"
           :profile-picture="props.targetUser.profilePicture!"
           :status="props.targetUser.status"
+          @profileClicked="emit('showFullProfileCard', props.targetUser)"
       />
     </div>
     <ConversationBody :messages="messages" :key="messageKey"/>

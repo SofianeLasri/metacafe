@@ -88,9 +88,8 @@ function showFullProfileCard(user: UserPublicProfile) {
   <div class="messages-app">
     <SideBar v-if="isLoading == 2" :cachedUsers="allCachedUsers" :activities="activities"
              @profileClicked="loadConversation" @showFullProfileCard="showFullProfileCard"/>
-    <Conversation @askedForOpeningSidebar="openSidebar"
-                  :targetUser="currentConversation"
-                  :key="currentConversationKey"/>
+    <Conversation @askedForOpeningSidebar="openSidebar" @showFullProfileCard="showFullProfileCard"
+                  :targetUser="currentConversation" :key="currentConversationKey"/>
   </div>
   <FullProfileCard :user="fullProfileCardUser" v-if="fullProfileCardUser" :key="fullProfileCardUser.id"
                    @closeFullProfileCard="fullProfileCardUser = null"/>

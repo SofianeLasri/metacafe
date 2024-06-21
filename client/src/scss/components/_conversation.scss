@@ -18,8 +18,12 @@
     gap: map.get($spacers, 2);
     user-select: none;
 
-    .profile-card .profile-action {
-      color: $gray-500;
+    .profile-card {
+      cursor: pointer;
+
+      .profile-action {
+        color: $gray-500;
+      }
     }
 
     #openSidebarBtn {
