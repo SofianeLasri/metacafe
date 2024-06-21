@@ -28,7 +28,7 @@ const emit = defineEmits<{
 // TODO : Faire de vrai conversations en base
 const socketChannelName: string = (parseInt(localStorage.getItem("userId")!) + (props.targetUser ? props.targetUser.id : 0)).toString();
 
-const socket = io("http://localhost:3000", {
+const socket = io(serverBaseUrl, {
   query: {channel: socketChannelName}
 });
 
@@ -36,7 +36,9 @@ socket.on("connect", () => {
   console.log("Connected to server on channel " + socketChannelName);
 
   socket.on("message", (message) => {
-    fetchMessages();
+    console.log(message.messageOject);
+    messages.value.push(JSON.parse(message.messageOject));
+    messageKey.value++;
   });
 });
 
@@ -91,6 +93,15 @@ async function handleSendMessage(message: string) {
   if (props.targetUser) {
     const targetUserId = props.targetUser.id;
     const url = `${sendMessage}${targetUserId}`;
+    const now: Date = new Date();
+    const messageObject: Message = {
+      id: 0,
+      senderUserId: parseInt(localStorage.getItem("userId")!),
+      receiverUserId: targetUserId,
+      text: message,
+      createdAt: now,
+      updatedAt: now,
+    }
 
     await fetchApi(url, {
       method: 'PUT',
@@ -98,7 +109,7 @@ async function handleSendMessage(message: string) {
       body: JSON.stringify({message}),
     });
 
-    socket.emit("message", {channel: socketChannelName, content: message});
+    socket.emit("message", {channel: socketChannelName, messageOject: JSON.stringify(messageObject)});
 
     fetchMessages();
   }
