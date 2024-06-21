@@ -1,4 +1,5 @@
 export interface GetAllUsersFilters {
+    name?: string;
     isDeleted?: boolean;
     includeDeleted?: boolean;
 }

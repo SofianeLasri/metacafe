@@ -13,6 +13,7 @@ const apiConfig = {
         centersOfInterest: `${serverBaseUrl}/api/user/me/centersOfInterest`,
         sendMessage: `${serverBaseUrl}/api/user/me/sendMessage/`,
         getMessages: `${serverBaseUrl}/api/user/me/messages/`,
+        searchUser: `${serverBaseUrl}/api/user/search`,
     },
     attachment: `${serverBaseUrl}/api/attachment/`,
     centerOfInterest: {

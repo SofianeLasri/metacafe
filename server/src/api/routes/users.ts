@@ -179,8 +179,12 @@ router.post('/', isAuthenticated, async (req: Request, res: Response) => {
     return res.status(200).send(result);
 });
 
-router.get('/', isAuthenticated, async (req: Request, res: Response) => {
-    const filters: FilterUsersDTO = req.body;
+router.post('/search', isAuthenticated, jsonParser, async (req: Request, res: Response) => {
+    const filters: FilterUsersDTO = {
+        name: req.body.search ? req.body.search : '',
+    };
+    console.log("searching for users with filters: ", filters);
+
     const result: User[] = await userController.getAll(filters);
     return res.status(200).send(result);
 });

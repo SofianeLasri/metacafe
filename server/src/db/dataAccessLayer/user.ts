@@ -341,6 +341,10 @@ export const getAll = async (filters?: GetAllUsersFilters): Promise<UserOutput[]
     };
 
     if (filters) {
+        if(filters.name) {
+            queryOptions.where.name = {[Op.like]: `${filters.name}%`};
+        }
+
         if (filters.isDeleted) {
             queryOptions.where.deletedAt = {[Op.not]: null};
         }

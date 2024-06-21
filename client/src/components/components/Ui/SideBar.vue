@@ -4,6 +4,9 @@ import SearchZone from "~@/components/components/Ui/SearchZone/SearchZone.vue";
 import defaultProfilePic from "~@/assets/images/square-logo-with-background.avif?url";
 import {onMounted, ref} from "vue";
 import {Activity, UserPublicProfile} from "~@/types.ts";
+import apiConfig from '~@/config/apiConfig.ts';
+
+const {user: {searchUser}} = apiConfig;
 
 const props = defineProps<{
   users: UserPublicProfile[];
@@ -45,7 +48,7 @@ onMounted(() => {
     });
 
     sidebar.addEventListener("touchmove", (e) => {
-      if(sidebar.classList.contains("mobile-fullwidth")) {
+      if (sidebar.classList.contains("mobile-fullwidth")) {
         return;
       }
 
@@ -103,7 +106,7 @@ function profileClicked(user: UserPublicProfile) {
             status="En ligne"/>
       </div>
 
-      <SearchZone id="searchContact" class="p-2" placeholder="Rechercher un utilisateur" search-url="#"/>
+      <SearchZone id="searchContact" :search-url="searchUser" class="p-2" placeholder="Rechercher un utilisateur"/>
     </div>
 
     <div class="user-list">

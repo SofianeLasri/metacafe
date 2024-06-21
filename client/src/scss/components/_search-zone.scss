@@ -52,6 +52,7 @@
         background-color: $white;
         margin-top: map.get($spacers, 1);
         overflow-y: scroll;
+        z-index: 100;
 
         padding: map.get($spacers, 1);
         border-radius: $border-radius;

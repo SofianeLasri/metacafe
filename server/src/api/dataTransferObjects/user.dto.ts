@@ -8,6 +8,7 @@ export type CreateUserDTO = {
 export type UpdateUserDTO = Required<CreateUserDTO>;
 
 export type FilterUsersDTO = {
+    name?: string;
     isDeleted?: boolean;
     includeDeleted?: boolean;
 }
