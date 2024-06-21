@@ -3,20 +3,21 @@ import ProfileCard from "~@/components/components/Ui/ProfileCard.vue";
 import SearchZone from "~@/components/components/Ui/SearchZone/SearchZone.vue";
 import defaultProfilePic from "~@/assets/images/square-logo-with-background.avif?url";
 import {onMounted, ref} from "vue";
-import {Activity, UserPublicProfile} from "~@/types.ts";
+import {Activity, SearchZoneResult, UserPublicProfile} from "~@/types.ts";
 import apiConfig from '~@/config/apiConfig.ts';
+import {fetchApi, getAuthHeaders} from "~@/helpers.ts";
 
-const {user: {searchUser}} = apiConfig;
+const {userApiUrl, user: {searchUser}} = apiConfig;
 
 const props = defineProps<{
-  users: UserPublicProfile[];
+  cachedUsers: UserPublicProfile[];
   activities: Activity[];
 }>();
 
-console.log(props.activities);
 
 const emit = defineEmits<{
   (e: 'profileClicked', user: UserPublicProfile): void
+  (e: 'showFullProfileCard', user: UserPublicProfile): void
 }>()
 
 const sidebarRef = ref<HTMLElement | null>(null);
@@ -33,9 +34,9 @@ props.activities.forEach((activity: Activity) => {
   let user: UserPublicProfile;
 
   if(activity.targetUserId == userId) {
-    user = props.users.find((user: UserPublicProfile) => user.id === activity.userId)!;
+    user = props.cachedUsers.find((user: UserPublicProfile) => user.id === activity.userId)!;
   } else {
-    user = props.users.find((user: UserPublicProfile) => user.id === activity.targetUserId)!;
+    user = props.cachedUsers.find((user: UserPublicProfile) => user.id === activity.targetUserId)!;
   }
   acitivitiesSortedUsersList.push(user);
 });
@@ -95,6 +96,30 @@ function profileClicked(user: UserPublicProfile) {
     clickedProfileItem.classList.add("active");
   }
 }
+
+function showFullProfileCard(clickedSearchResult: SearchZoneResult) {
+  const userId: number = parseInt(clickedSearchResult.value);
+
+  if(props.cachedUsers.some(user => user.id === userId)) {
+    const user: UserPublicProfile = props.cachedUsers.find(user => user.id === userId)!;
+    emit("showFullProfileCard", user);
+  } else {
+    fetchApi(`${userApiUrl}/${userId}`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    }).then(user => {
+      props.cachedUsers.push(user);
+      emit("showFullProfileCard", user);
+    });
+  }
+}
+
+function askForSeingUserProfile(user: UserPublicProfile) {
+  showFullProfileCard({
+    name: user.name,
+    value: user.id.toString()
+  });
+}
 </script>
 
 <template>
@@ -108,11 +133,11 @@ function profileClicked(user: UserPublicProfile) {
             :avatar="userProfilePictureUrl"
             :profilePicture="null"
             :action-text="`Voir le profil`"
-            :action-link="`#`"
-            status="En ligne"/>
+            @actionClicked="askForSeingUserProfile" />
       </div>
 
-      <SearchZone id="searchContact" :search-url="searchUser" class="p-2" placeholder="Rechercher un utilisateur"/>
+      <SearchZone id="searchContact" :search-url="searchUser" class="p-2" placeholder="Rechercher un utilisateur"
+                  @resultClick="showFullProfileCard" :clear-input-on-result-click="false" />
     </div>
 
     <div class="user-list">

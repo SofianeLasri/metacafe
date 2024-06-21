@@ -13,7 +13,8 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="simple-result" :data-value="value" :data-text="name" @click="emit('resultClicked', {name, value})">
+  <div class="simple-result" :data-value="value" :data-text="name"
+       @click="emit('resultClicked', {name, value})" @touchstart="emit('resultClicked', {name, value})">
     {{ name }}
   </div>
 </template>

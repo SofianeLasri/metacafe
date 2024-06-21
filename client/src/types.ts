@@ -13,7 +13,7 @@ export type UserPublicProfile = {
     id: number;
     name: string;
     profilePicture?: number | null;
-    status: string;
+    status?: string;
 };
 
 export type Attachment = {

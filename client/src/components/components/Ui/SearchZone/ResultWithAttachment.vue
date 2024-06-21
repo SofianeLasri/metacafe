@@ -18,7 +18,8 @@ const attachementUrl = attachment + props.attachment;
 </script>
 
 <template>
-  <div class="result-with-attachment" :data-value="value" :data-text="name" @click="emit('resultClicked', {name, value})">
+  <div class="result-with-attachment" :data-value="value" :data-text="name"
+       @click="emit('resultClicked', {name, value})" @touchstart="emit('resultClicked', {name, value})">
     <div class="profile-picture" :style="{'background-image': `url(${attachementUrl})`}"></div>
     <div class="text">
       {{ name }}

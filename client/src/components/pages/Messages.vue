@@ -5,6 +5,7 @@ import Conversation from '~@/components/components/Conversation/Conversation.vue
 import {UserPublicProfile, Activity} from '~@/types.ts';
 import {fetchApi, getAuthHeaders} from '~@/helpers.ts';
 import apiConfig from '~@/config/apiConfig.ts';
+import FullProfileCard from "~@/components/components/Ui/FullProfileCard.vue";
 
 const {userApiUrl, friends, activity} = apiConfig;
 
@@ -12,6 +13,7 @@ const allCachedUsers = ref<UserPublicProfile[]>([]);
 const friendsList = ref<UserPublicProfile[]>([]);
 const activities = ref<Activity[]>([]);
 const isLoading = ref(0);
+const fullProfileCardUser = ref<UserPublicProfile | null>(null);
 
 let currentConversation: UserPublicProfile | null = null;
 const currentConversationKey = ref(0);
@@ -76,15 +78,22 @@ function openSidebar() {
   const sidebar = document.getElementById('sidebar')!;
   sidebar.style.left = '0';
 }
+
+function showFullProfileCard(user: UserPublicProfile) {
+  fullProfileCardUser.value = user;
+}
 </script>
 
 <template>
   <div class="messages-app">
-    <SideBar v-if="isLoading == 2" :users="allCachedUsers" :activities="activities" @profileClicked="loadConversation"/>
+    <SideBar v-if="isLoading == 2" :cachedUsers="allCachedUsers" :activities="activities"
+             @profileClicked="loadConversation" @showFullProfileCard="showFullProfileCard"/>
     <Conversation @askedForOpeningSidebar="openSidebar"
                   :targetUser="currentConversation"
                   :key="currentConversationKey"/>
   </div>
+  <FullProfileCard :user="fullProfileCardUser" v-if="fullProfileCardUser" :key="fullProfileCardUser.id"
+                   @closeFullProfileCard="fullProfileCardUser = null"/>
 </template>
 
 <style scoped>
