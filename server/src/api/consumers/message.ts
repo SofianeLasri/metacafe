@@ -8,7 +8,9 @@ dotenv.config();
 async function consumeMessages() {
     const user = process.env.RABBITMQ_DEFAULT_USER!;
     const password = process.env.RABBITMQ_DEFAULT_PASS!;
-    await RabbitMQ.connect("amqp://" + user + ":" + password + "@localhost:5672");
+    const host = process.env.RABBITMQ_HOST!;
+    const port = process.env.RABBITMQ_PORT!;
+    await RabbitMQ.connect("amqp://" + user + ":" + password + "@" + host + ":" + port);
     await RabbitMQ.createQueue('messages');
 
     await RabbitMQ.consumeMessage('messages', async (msg) => {
