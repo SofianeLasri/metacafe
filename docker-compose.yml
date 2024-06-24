@@ -77,6 +77,6 @@ services:
       SESSION_SECRET: ${SESSION_SECRET}
       SESSION_DURATION: ${SESSION_DURATION}
     ports:
-      - "5173:5173"
+      - ${VITE_PORT}:${VITE_PORT}
     depends_on:
       - backend
