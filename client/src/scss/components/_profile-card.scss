@@ -21,11 +21,14 @@
     .profile-meta {
         display: flex;
         flex-direction: column;
+        overflow: hidden;
 
         .profile-name {
             font-size: map.get($font-sizes, 6);
             font-weight: 700;
             line-height: 1;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
 
         .profile-action {
