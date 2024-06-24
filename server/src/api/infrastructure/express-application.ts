@@ -41,6 +41,7 @@ export class ExpressApplication {
     }
 
     private configureServer(): void {
+        console.log('Server is running on port ' + this.port);
         this.server = new ExpressServer(this.port, this.sessionSecret, this.corsAllowedOrigins);
     }
 
