@@ -5,6 +5,9 @@
 Métacafé est un projet scolaire dont l'objectif est de réaliser un projet avec Vue.js et Typescript, en utilisant
 Express.js. Le projet est réalisé par [Sofiane Lasri](https://sofianelasri.fr).
 
+Le projet est accessible à l'adresse [metacafe.sl-projects.com](https://metacafe.sl-projects.com) (ne mettez pas de 
+vrais mots de passe, le site n'est pas sécurisé).
+
 # Fonctionnalités
 
 Voici la liste des fonctionnalité que possède ce projet :
