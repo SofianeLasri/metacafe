@@ -140,7 +140,7 @@ onMounted(() => {
       <a href="#" class="small text-light">Mentions légales</a>
       <a href="#" class="small text-light">Politique de confidentialité</a>
       <a href="#" class="small text-light">Conditions générales d'utilisation</a>
-      <a href="https://sofianelasri.fr/" target="_blank" class="small text-light">2023 - Sofiane Lasri</a>
+      <a href="https://sofianelasri.fr/" target="_blank" class="small text-light">2024 - Sofiane Lasri</a>
     </div>
   </div>
 </template>
