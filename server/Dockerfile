@@ -6,7 +6,7 @@ COPY ./server ./server
 
 RUN cd ./server && npm install
 
-COPY .env ./server
+COPY stack.env ./server/.env
 
 WORKDIR /app/server
 

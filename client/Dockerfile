@@ -6,7 +6,7 @@ COPY ./client ./client
 
 RUN cd ./client && npm install
 
-COPY .env ./client
+COPY stack.env ./client/.env
 
 WORKDIR /app/client
 
