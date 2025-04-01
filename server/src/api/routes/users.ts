@@ -130,13 +130,14 @@ router.put('/me/sendMessage/:targetUserId', isAuthenticated, jsonParser, async (
     const targetUserId: number = Number(req.params.targetUserId);
     const message: string = req.body.message;
 
-    const messagePayload = {
+    /*const messagePayload = {
         senderUserId: user.id,
         receiverUserId: targetUserId,
         text: message,
     };
 
-    await RabbitMQ.sendMessage('messages', JSON.stringify(messagePayload));
+    await RabbitMQ.sendMessage('messages', JSON.stringify(messagePayload));*/
+    await userController.sendMessage(user.id, targetUserId, message);
 
     return res.status(200).send();
 });

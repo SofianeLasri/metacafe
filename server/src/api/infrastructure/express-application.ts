@@ -15,11 +15,11 @@ export class ExpressApplication {
     }
 
     async bootstrap(): Promise<void> {
-        const user = process.env.RABBITMQ_DEFAULT_USER!;
+        /*const user = process.env.RABBITMQ_DEFAULT_USER!;
         const password = process.env.RABBITMQ_DEFAULT_PASS!;
         const host = process.env.RABBITMQ_HOST!;
         const port = process.env.RABBITMQ_PORT!;
-        await RabbitMQ.connect("amqp://" + user + ":" + password + "@" + host + ":" + port);
+        await RabbitMQ.connect("amqp://" + user + ":" + password + "@" + host + ":" + port);*/
         this.server.bootstrap();
     }
 

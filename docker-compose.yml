@@ -11,22 +11,6 @@ services:
     volumes:
       - ./db_data:/var/lib/mysql
 
-  rabbitmq:
-    image: rabbitmq:3.13-management
-    container_name: rabbitmq
-    restart: always
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-    ports:
-      - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
-      - "15672:15672"
-    healthcheck:
-      test: rabbitmq-diagnostics check_port_connectivity
-      interval: 1s
-      timeout: 3s
-      retries: 30
-
   backend:
     build:
       context: ./
@@ -51,8 +35,6 @@ services:
     depends_on:
       database:
         condition: service_started
-      rabbitmq:
-        condition: service_healthy
 
   frontend:
     build:
